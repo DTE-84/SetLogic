@@ -3,5 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/SetLogic/', // Change this to match your repo name
+  // No base path needed for Vercel/Netlify
+  // Only use base: '/repo-name/' for GitHub Pages
 })
