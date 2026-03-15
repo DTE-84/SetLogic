@@ -1,0 +1,179 @@
+import { useState } from 'react'
+import { TrendingUp, TrendingDown, Dumbbell, Apple, Flame, Target } from 'lucide-react'
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import './Dashboard.css'
+
+// Sample data
+const weightData = [
+  { week: 'Week 1', weight: 82.5, goal: 79 },
+  { week: 'Week 2', weight: 81.8, goal: 79 },
+  { week: 'Week 3', weight: 81.2, goal: 79 },
+  { week: 'Week 4', weight: 80.6, goal: 79 },
+  { week: 'Week 5', weight: 79.9, goal: 79 },
+  { week: 'Week 6', weight: 79.4, goal: 79 },
+]
+
+const workoutData = [
+  { day: 'Mon', sets: 18 },
+  { day: 'Tue', sets: 15 },
+  { day: 'Wed', sets: 20 },
+  { day: 'Thu', sets: 0 },
+  { day: 'Fri', sets: 22 },
+  { day: 'Sat', sets: 16 },
+  { day: 'Sun', sets: 0 },
+]
+
+const calorieData = [
+  { day: 'Mon', calories: 2340, target: 2400 },
+  { day: 'Tue', calories: 2420, target: 2400 },
+  { day: 'Wed', calories: 2380, target: 2400 },
+  { day: 'Thu', calories: 2450, target: 2400 },
+  { day: 'Fri', calories: 2390, target: 2400 },
+  { day: 'Sat', calories: 2600, target: 2400 },
+  { day: 'Sun', calories: 2200, target: 2400 },
+]
+
+function Dashboard() {
+  return (
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <h2>Your Progress</h2>
+        <p className="dashboard-subtitle">Track your fitness journey with SetLogic</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon success">
+            <TrendingDown size={24} />
+          </div>
+          <div className="stat-content">
+            <span className="stat-label">Weight Progress</span>
+            <div className="stat-value">-3.1 kg</div>
+            <span className="stat-trend success">↓ 3.8% from start</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon primary">
+            <Dumbbell size={24} />
+          </div>
+          <div className="stat-content">
+            <span className="stat-label">Weekly Volume</span>
+            <div className="stat-value">91 sets</div>
+            <span className="stat-trend primary">5 workouts completed</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon warning">
+            <Flame size={24} />
+          </div>
+          <div className="stat-content">
+            <span className="stat-label">Avg Calories</span>
+            <div className="stat-value">2,397</div>
+            <span className="stat-trend">Daily average this week</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon primary">
+            <Target size={24} />
+          </div>
+          <div className="stat-content">
+            <span className="stat-label">Streak</span>
+            <div className="stat-value">12 days</div>
+            <span className="stat-trend success">Keep it up!</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Grid */}
+      <div className="charts-grid">
+        {/* Weight Progress */}
+        <div className="chart-card full">
+          <div className="chart-header">
+            <h3>Weight Progress</h3>
+            <span className="chart-subtitle">6-week trend vs goal</span>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={weightData}>
+              <defs>
+                <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="week" stroke="#808080" style={{ fontSize: '0.75rem' }} />
+              <YAxis stroke="#808080" domain={['dataMin - 1', 'dataMax + 1']} style={{ fontSize: '0.75rem' }} />
+              <Tooltip 
+                contentStyle={{
+                  background: 'var(--surface-elevated)',
+                  border: '1px solid var(--border-medium)',
+                  borderRadius: '6px',
+                }}
+              />
+              <Line type="monotone" dataKey="weight" stroke="#d4af37" strokeWidth={3} dot={{ fill: '#d4af37', r: 5 }} fill="url(#weightGradient)" />
+              <Line type="monotone" dataKey="goal" stroke="#8b7355" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Workout Volume */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <h3>Weekly Workouts</h3>
+            <span className="chart-subtitle">Total sets per day</span>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={workoutData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="day" stroke="#808080" style={{ fontSize: '0.75rem' }} />
+              <YAxis stroke="#808080" style={{ fontSize: '0.75rem' }} />
+              <Tooltip 
+                contentStyle={{
+                  background: 'var(--surface-elevated)',
+                  border: '1px solid var(--border-medium)',
+                  borderRadius: '6px',
+                }}
+              />
+              <Bar dataKey="sets" fill="#d4af37" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Calorie Tracking */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <h3>Calorie Intake</h3>
+            <span className="chart-subtitle">Daily vs target</span>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={calorieData}>
+              <defs>
+                <linearGradient id="calorieGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#c9a961" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#c9a961" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="day" stroke="#808080" style={{ fontSize: '0.75rem' }} />
+              <YAxis stroke="#808080" style={{ fontSize: '0.75rem' }} />
+              <Tooltip 
+                contentStyle={{
+                  background: 'var(--surface-elevated)',
+                  border: '1px solid var(--border-medium)',
+                  borderRadius: '6px',
+                }}
+              />
+              <Area type="monotone" dataKey="calories" stroke="#c9a961" strokeWidth={2} fill="url(#calorieGradient)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Dashboard
