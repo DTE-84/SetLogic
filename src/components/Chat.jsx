@@ -1,13 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, Sparkles, Loader } from 'lucide-react'
 import { chatWithCoach } from '../services/claudeAPI'
+import { useAuth } from '../contexts/AuthContext'
 import './Chat.css'
 
 function Chat() {
+  const { currentUser } = useAuth()
+  const firstName = currentUser?.displayName?.split(' ')[0] || 'there'
+  
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hey! I\'m SetLogic, your AI fitness coach. I can help with workout programming, nutrition advice, form tips, and motivation. What\'s on your mind today?'
+      content: `Hey ${firstName}! I'm SetLogic, your AI fitness coach. I can help with workout programming, nutrition advice, form tips, and motivation. What's on your mind today?`
     }
   ])
   const [input, setInput] = useState('')

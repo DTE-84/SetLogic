@@ -21,7 +21,7 @@
 }
 
 .chat-icon {
-  color: var(--gold-primary);
+  color: var(--blue-primary);
 }
 
 .chat-title h2 {
@@ -70,12 +70,12 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: var(--gold-glow);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: var(--blue-glow);
+  border: 1px solid rgba(0, 217, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gold-primary);
+  color: var(--blue-primary);
   flex-shrink: 0;
 }
 
@@ -100,9 +100,9 @@
 }
 
 .message.user .message-text {
-  background: var(--gold-glow);
-  border-color: rgba(212, 175, 55, 0.3);
-  color: var(--gold-light);
+  background: var(--blue-glow);
+  border-color: rgba(0, 217, 255, 0.3);
+  color: var(--blue-light);
 }
 
 .message-loading {
@@ -155,8 +155,8 @@
 
 .chat-input:focus {
   outline: none;
-  border-color: var(--gold-primary);
-  box-shadow: 0 0 0 3px var(--gold-glow);
+  border-color: var(--blue-primary);
+  box-shadow: 0 0 0 3px var(--blue-glow);
 }
 
 .chat-input:disabled {
@@ -167,7 +167,7 @@
 .chat-send-btn {
   width: 48px;
   height: 48px;
-  background: var(--gold-primary);
+  background: var(--blue-primary);
   border: none;
   border-radius: 8px;
   color: var(--background-primary);
@@ -180,9 +180,9 @@
 }
 
 .chat-send-btn:hover:not(:disabled) {
-  background: var(--gold-light);
+  background: var(--blue-light);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4);
 }
 
 .chat-send-btn:disabled {
@@ -205,5 +205,37 @@
 
   .chat-input-container {
     padding: 1rem;
+  }
+}
+
+/* Mobile chat optimizations */
+@media (max-width: 768px) {
+  .chat-container {
+    height: calc(100vh - 180px);
+    border-radius: 0;
+  }
+
+  .chat-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .chat-title h2 {
+    font-size: 1.5rem;
+  }
+
+  .chat-messages {
+    padding: 1rem;
+  }
+
+  .message-content {
+    max-width: 85%;
+  }
+
+  .chat-input-container {
+    padding: 1rem;
+  }
+
+  .chat-input {
+    font-size: 1rem;
   }
 }

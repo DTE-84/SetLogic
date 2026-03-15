@@ -8,16 +8,22 @@
   --surface: #1f1f1f;
   --surface-elevated: #262626;
   
-  /* Champagne Gold Accents */
-  --gold-primary: #d4af37;
-  --gold-light: #e8c870;
-  --gold-dark: #b8941f;
-  --gold-glow: rgba(212, 175, 55, 0.15);
-  --gold-shimmer: rgba(232, 200, 112, 0.3);
+  /* Electric Blue (from logo) */
+  --blue-primary: #00d9ff;
+  --blue-light: #33e0ff;
+  --blue-dark: #00b8d4;
+  --blue-glow: rgba(0, 217, 255, 0.15);
+  --blue-shimmer: rgba(51, 224, 255, 0.3);
   
-  /* Bronze/Copper Accents */
-  --bronze: #8b7355;
-  --bronze-light: #a68968;
+  /* Burgundy/Wine Accents */
+  --burgundy: #8b3a62;
+  --burgundy-light: #a8598a;
+  --burgundy-dark: #6b2647;
+  
+  /* White Highlights */
+  --white: #ffffff;
+  --white-soft: #f5f5f5;
+  --white-dim: #e0e0e0;
   
   /* Text */
   --text-primary: #ffffff;
@@ -26,13 +32,13 @@
   --text-muted: #5a5a5a;
   
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-medium: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(0, 217, 255, 0.08);
+  --border-medium: rgba(0, 217, 255, 0.15);
+  --border-strong: rgba(0, 217, 255, 0.25);
   
   /* Status Colors */
-  --success: #6b9080;
-  --warning: #d4a373;
+  --success: #00d9ff;
+  --warning: #a8598a;
   --danger: #c97c5d;
   
   /* Typography */
@@ -85,10 +91,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-dark);
+  background: var(--blue-dark);
 }
 
 ::selection {
-  background: var(--gold-glow);
-  color: var(--gold-light);
+  background: var(--blue-glow);
+  color: var(--blue-light);
 }

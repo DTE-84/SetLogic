@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { Sparkles, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
+import { Sparkles, Mail, Lock, AlertCircle, CheckCircle, User } from 'lucide-react'
 import './Auth.css'
 
 function Signup({ onToggle }) {
+  const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -23,11 +24,15 @@ function Signup({ onToggle }) {
       return setError('Password must be at least 6 characters')
     }
 
+    if (!displayName.trim()) {
+      return setError('Please enter your name')
+    }
+
     try {
       setError('')
       setMessage('')
       setLoading(true)
-      await signup(email, password)
+      await signup(email, password, displayName.trim())
       setMessage('Account created! Verification email sent. Please check your inbox.')
     } catch (error) {
       setError('Failed to create account. Email may already be in use.')
@@ -87,6 +92,20 @@ function Signup({ onToggle }) {
         )}
 
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label>
+              <User size={18} />
+              Name
+            </label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Your name"
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label>
               <Mail size={18} />

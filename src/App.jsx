@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Dumbbell, MessageSquare, Utensils, LineChart, Sparkles, LogOut } from 'lucide-react'
+import { Dumbbell, MessageSquare, Utensils, LineChart, LogOut, Watch } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import Dashboard from './components/Dashboard'
 import Chat from './components/Chat'
 import WorkoutGenerator from './components/WorkoutGenerator'
 import MealGenerator from './components/MealGenerator'
+import Wearables from './components/Wearables'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import './App.css'
@@ -41,6 +42,8 @@ function App() {
         return <WorkoutGenerator />
       case 'meal':
         return <MealGenerator />
+      case 'wearables':
+        return <Wearables />
       default:
         return <Dashboard />
     }
@@ -58,59 +61,63 @@ function App() {
               <span className="logo-tagline">AI Fitness Coach</span>
             </div>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={20} />
-            <span>Logout</span>
-          </button>
+          <div className="header-user">
+            <div className="user-greeting">
+              <span className="greeting-text">Welcome back,</span>
+              <span className="user-name">{currentUser?.displayName || 'Athlete'}</span>
+            </div>
+            <button className="logout-btn" onClick={handleLogout}>
+              <LogOut size={20} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </header>
 
       <div className="app-layout">
-        {/* Sidebar */}
-        <aside className="sidebar">
-          <nav className="sidebar-nav">
-            <button
-              className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setActiveView('dashboard')}
-            >
-              <LineChart size={20} />
-              <span>Dashboard</span>
-            </button>
-            <button
-              className={`nav-item ${activeView === 'chat' ? 'active' : ''}`}
-              onClick={() => setActiveView('chat')}
-            >
-              <MessageSquare size={20} />
-              <span>AI Coach</span>
-            </button>
-            <button
-              className={`nav-item ${activeView === 'workout' ? 'active' : ''}`}
-              onClick={() => setActiveView('workout')}
-            >
-              <Dumbbell size={20} />
-              <span>Workout Plan</span>
-            </button>
-            <button
-              className={`nav-item ${activeView === 'meal' ? 'active' : ''}`}
-              onClick={() => setActiveView('meal')}
-            >
-              <Utensils size={20} />
-              <span>Meal Plan</span>
-            </button>
-          </nav>
-
-          <div className="sidebar-footer">
-            <div className="ai-badge">
-              <Sparkles size={14} />
-              <span>Powered by Claude</span>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
+        {/* Main Content - Full Width */}
         <main className="main-content">
           {renderView()}
         </main>
+
+        {/* Bottom Navigation Bar */}
+        <nav className="bottom-nav">
+          <button
+            className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveView('dashboard')}
+          >
+            <LineChart size={24} />
+            <span>Dashboard</span>
+          </button>
+          <button
+            className={`nav-item ${activeView === 'workout' ? 'active' : ''}`}
+            onClick={() => setActiveView('workout')}
+          >
+            <Dumbbell size={24} />
+            <span>Workout</span>
+          </button>
+          <button
+            className={`nav-item ${activeView === 'chat' ? 'active' : ''}`}
+            onClick={() => setActiveView('chat')}
+          >
+            <MessageSquare size={24} />
+            <span>AI Coach</span>
+          </button>
+          <button
+            className={`nav-item ${activeView === 'meal' ? 'active' : ''}`}
+            onClick={() => setActiveView('meal')}
+          >
+            <Utensils size={24} />
+            <span>Nutrition</span>
+          </button>
+          <button
+            className={`nav-item ${activeView === 'wearables' ? 'active' : ''}`}
+            onClick={() => setActiveView('wearables')}
+          >
+            <Watch size={24} />
+            <span>Devices</span>
+          </button>
+        </nav>
       </div>
     </div>
   )

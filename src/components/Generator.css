@@ -12,7 +12,7 @@
 }
 
 .generator-icon {
-  color: var(--gold-primary);
+  color: var(--blue-primary);
   animation: pulse-gold 3s ease-in-out infinite;
 }
 
@@ -76,7 +76,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--gold-primary);
+  border-color: var(--blue-primary);
   box-shadow: 0 0 0 3px var(--gold-glow);
 }
 
@@ -98,7 +98,7 @@
 
 .generate-btn {
   width: 100%;
-  background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+  background: linear-gradient(135deg, var(--blue-primary), var(--blue-light));
   border: none;
   border-radius: 8px;
   padding: 1rem 2rem;
@@ -139,7 +139,7 @@
 
 .generate-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 217, 255, 0.5);
 }
 
 .generate-btn:disabled {
@@ -209,7 +209,7 @@
 }
 
 .result-content::-webkit-scrollbar-thumb {
-  background: var(--gold-dark);
+  background: var(--blue-dark);
   border-radius: 4px;
 }
 

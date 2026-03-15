@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { TrendingUp, TrendingDown, Dumbbell, Apple, Flame, Target } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { useAuth } from '../contexts/AuthContext'
 import './Dashboard.css'
 
 // Sample data
@@ -34,10 +35,13 @@ const calorieData = [
 ]
 
 function Dashboard() {
+  const { currentUser } = useAuth()
+  const firstName = currentUser?.displayName?.split(' ')[0] || 'Athlete'
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h2>Your Progress</h2>
+        <h2>{firstName}'s Progress</h2>
         <p className="dashboard-subtitle">Track your fitness journey with SetLogic</p>
       </div>
 
@@ -100,8 +104,8 @@ function Dashboard() {
             <LineChart data={weightData}>
               <defs>
                 <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#00d9ff" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#00d9ff" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -114,8 +118,8 @@ function Dashboard() {
                   borderRadius: '6px',
                 }}
               />
-              <Line type="monotone" dataKey="weight" stroke="#d4af37" strokeWidth={3} dot={{ fill: '#d4af37', r: 5 }} fill="url(#weightGradient)" />
-              <Line type="monotone" dataKey="goal" stroke="#8b7355" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+              <Line type="monotone" dataKey="weight" stroke="#00d9ff" strokeWidth={3} dot={{ fill: '#00d9ff', r: 5 }} fill="url(#weightGradient)" />
+              <Line type="monotone" dataKey="goal" stroke="#6b2647" strokeWidth={2} strokeDasharray="5 5" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -138,7 +142,7 @@ function Dashboard() {
                   borderRadius: '6px',
                 }}
               />
-              <Bar dataKey="sets" fill="#d4af37" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="sets" fill="#00d9ff" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -153,8 +157,8 @@ function Dashboard() {
             <AreaChart data={calorieData}>
               <defs>
                 <linearGradient id="calorieGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#c9a961" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="#c9a961" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#a8598a" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#a8598a" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -167,7 +171,7 @@ function Dashboard() {
                   borderRadius: '6px',
                 }}
               />
-              <Area type="monotone" dataKey="calories" stroke="#c9a961" strokeWidth={2} fill="url(#calorieGradient)" />
+              <Area type="monotone" dataKey="calories" stroke="#a8598a" strokeWidth={2} fill="url(#calorieGradient)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

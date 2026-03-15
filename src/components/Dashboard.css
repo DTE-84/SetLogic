@@ -64,13 +64,13 @@
 
 .stat-icon.primary {
   background: var(--gold-glow);
-  color: var(--gold-primary);
+  color: var(--blue-primary);
   border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .stat-icon.success {
   background: rgba(107, 144, 128, 0.15);
-  color: var(--success);
+  color: #00d9ff;
   border: 1px solid rgba(107, 144, 128, 0.2);
 }
 
@@ -107,11 +107,11 @@
 }
 
 .stat-trend.success {
-  color: var(--success);
+  color: #00d9ff;
 }
 
 .stat-trend.primary {
-  color: var(--gold-light);
+  color: var(--blue-light);
 }
 
 .charts-grid {
@@ -166,5 +166,48 @@
 
   .dashboard-header h2 {
     font-size: 2rem;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .dashboard-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .chart-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .chart-header h3 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    padding: 1rem;
   }
 }

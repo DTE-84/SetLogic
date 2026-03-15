@@ -8,7 +8,8 @@ import {
   sendEmailVerification,
   GoogleAuthProvider,
   signInWithPopup,
-  OAuthProvider
+  OAuthProvider,
+  updateProfile
 } from 'firebase/auth'
 import { auth } from '../firebase'
 
@@ -22,9 +23,11 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const signup = async (email, password) => {
+  const signup = async (email, password, displayName) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-    // Send verification email immediately after signup
+    // Update profile with display name
+    await updateProfile(userCredential.user, { displayName })
+    // Send verification email
     await sendEmailVerification(userCredential.user)
     return userCredential
   }
