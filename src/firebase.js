@@ -4,13 +4,13 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyDKJSSHuB18-CiOgtuuEqiPe_OAd7Uc6gs",
+  authDomain: "setlogic-b9898.firebaseapp.com",
+  projectId: "setlogic-b9898",
+  storageBucket: "setlogic-b9898.firebasestorage.app",
+  messagingSenderId: "541939727495",
+  appId: "1:541939727495:web:31696649e28ef344430c22",
+  measurementId: "G-9QBFTXY62G"
 };
 
 // Initialize Firebase
