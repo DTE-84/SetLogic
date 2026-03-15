@@ -1,13 +1,35 @@
 import { useState } from 'react'
-import { Dumbbell, MessageSquare, Utensils, LineChart, Sparkles } from 'lucide-react'
+import { Dumbbell, MessageSquare, Utensils, LineChart, Sparkles, LogOut } from 'lucide-react'
+import { useAuth } from './contexts/AuthContext'
 import Dashboard from './components/Dashboard'
 import Chat from './components/Chat'
 import WorkoutGenerator from './components/WorkoutGenerator'
 import MealGenerator from './components/MealGenerator'
+import Login from './components/Login'
+import Signup from './components/Signup'
 import './App.css'
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard')
+  const [showLogin, setShowLogin] = useState(true)
+  const { currentUser, logout } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Failed to log out:', error)
+    }
+  }
+
+  // Show auth screens if not logged in
+  if (!currentUser) {
+    return showLogin ? (
+      <Login onToggle={() => setShowLogin(false)} />
+    ) : (
+      <Signup onToggle={() => setShowLogin(true)} />
+    )
+  }
 
   const renderView = () => {
     switch (activeView) {
@@ -30,12 +52,16 @@ function App() {
       <header className="header">
         <div className="header-content">
           <div className="logo">
-            <Sparkles className="logo-icon" size={32} strokeWidth={1.5} />
+            <img src="/setlogic-logo.png" alt="SetLogic" className="logo-image" />
             <div className="logo-text">
               <h1>SetLogic</h1>
               <span className="logo-tagline">AI Fitness Coach</span>
             </div>
           </div>
+          <button className="logout-btn" onClick={handleLogout}>
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
         </div>
       </header>
 

@@ -32,12 +32,58 @@
   max-width: 1600px;
   margin: 0 auto;
   padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+  background: var(--gold-glow);
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.logo-image {
+  width: 48px;
+  height: 48px;
+  /* Recolor from cyan/blue to champagne gold */
+  filter: 
+    hue-rotate(190deg) 
+    saturate(0.7) 
+    brightness(1.1)
+    drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
+  transition: all 0.3s ease;
+}
+
+.logo-image:hover {
+  filter: 
+    hue-rotate(190deg) 
+    saturate(0.8) 
+    brightness(1.2)
+    drop-shadow(0 0 16px rgba(212, 175, 55, 0.6));
+  transform: scale(1.05);
 }
 
 .logo-icon {
