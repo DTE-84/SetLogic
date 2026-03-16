@@ -157,7 +157,7 @@
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--border-subtle);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   padding: 0.5rem 0;
   z-index: 100;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);

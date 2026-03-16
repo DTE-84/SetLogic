@@ -1,0 +1,152 @@
+.habit-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  .habit-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+  }
+  
+  .habit-header h2 {
+    font-size: 2rem;
+    margin: 0;
+  }
+  
+  .habit-subtitle {
+    color: var(--text-tertiary);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  
+  .add-habit-btn {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--blue-glow);
+    border: 1px solid var(--blue-primary);
+    color: var(--blue-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+  }
+  
+  .add-habit-btn:hover {
+    background: var(--blue-primary);
+    color: var(--background-primary);
+  }
+  
+  .add-habit-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 1rem;
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-medium);
+    margin-bottom: 2rem;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  .add-habit-form input {
+    background: var(--background-secondary);
+    border: 1px solid var(--border-subtle);
+    padding: 0.75rem 1rem;
+    color: white;
+    border-radius: 6px;
+  }
+  
+  .add-habit-form button {
+    background: var(--blue-primary);
+    color: var(--background-primary);
+    border: none;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .habits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .habit-card {
+    background: var(--surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .habit-card.complete {
+    border-color: var(--success);
+    background: rgba(107, 144, 128, 0.05);
+  }
+  
+  .habit-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .habit-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--surface-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .habit-progress-bar {
+    height: 8px;
+    background: var(--background-primary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue-dark), var(--blue-primary));
+    transition: width 0.5s ease-out;
+  }
+  
+  .habit-card.complete .progress-fill {
+    background: var(--success);
+  }
+  
+  .habit-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  
+  .habit-actions button {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-medium);
+    color: var(--text-primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .habit-actions button:hover {
+    background: var(--blue-primary);
+    color: var(--background-primary);
+  }
