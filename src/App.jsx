@@ -16,7 +16,7 @@ import Wearables from "./components/Wearables";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import "./App.css";
-import HabitTracker from "./components/HabitTRacker";
+import HabitTracker from "./components/HabitTracker";
 import { Target } from "lucide-react";
 import { useEffect } from "react";
 function App() {
