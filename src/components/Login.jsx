@@ -80,7 +80,7 @@ function Login({ onToggle }) {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <img src="/setlogic-logo.png" alt="SetLogic" className="auth-logo" />
+          <img src="/SetLogicTransp.png" alt="SetLogic" className="auth-logo" />
           <h2>{showReset ? 'Reset Password' : 'Welcome Back'}</h2>
           <p className="auth-subtitle">
             {showReset ? 'Enter your email to receive a reset link' : 'Sign in to continue your fitness journey'}

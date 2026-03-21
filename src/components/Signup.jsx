@@ -72,7 +72,7 @@ function Signup({ onToggle }) {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <img src="/setlogic-logo.png" alt="SetLogic" className="auth-logo" />
+          <img src="/SetLogicTransp.png" alt="SetLogic" className="auth-logo" />
           <h2>Start Your Journey</h2>
           <p className="auth-subtitle">Create your account to unlock AI-powered fitness</p>
         </div>

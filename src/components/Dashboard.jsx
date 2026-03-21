@@ -176,6 +176,14 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      <footer className="dashboard-footer">
+        <div className="legal-links">
+          <a href="https://dte-solutions.icu/legal/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          <a href="https://dte-solutions.icu/legal/terms.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+        </div>
+        <p className="copyright">© 2026 DTE Solutions LLC // SetLogic Division</p>
+      </footer>
     </div>
   )
 }
