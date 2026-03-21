@@ -6,6 +6,9 @@ import {
 	LineChart,
 	LogOut,
 	Watch,
+	Sparkles,
+	BookOpen,
+	Footprints,
 } from "lucide-react";
 import { useAuth } from "./contexts/AuthContext";
 import Dashboard from "./components/Dashboard";
@@ -15,10 +18,11 @@ import MealGenerator from "./components/MealGenerator";
 import Wearables from "./components/Wearables";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import "./App.css";
 import HabitTracker from "./components/HabitTracker";
-import { Target } from "lucide-react";
-import { useEffect } from "react";
+import ExerciseLibrary from "./components/ExerciseLibrary";
+import NexusFeed from "./components/NexusFeed";
+import "./App.css";
+
 function App() {
 	const [activeView, setActiveView] = useState("dashboard");
 	const [showLogin, setShowLogin] = useState(true);
@@ -32,7 +36,6 @@ function App() {
 		}
 	};
 
-	// Show auth screens if not logged in
 	if (!currentUser) {
 		return showLogin ? (
 			<Login onToggle={() => setShowLogin(false)} />
@@ -49,12 +52,16 @@ function App() {
 				return <Chat />;
 			case "workout":
 				return <WorkoutGenerator />;
+			case "library":
+				return <ExerciseLibrary />;
+			case "nexus":
+				return <NexusFeed />;
 			case "meal":
 				return <MealGenerator />;
 			case "wearables":
 				return <Wearables />;
 			case "habits":
-				return <HabitTracker />; // <-- ADD THIS LINE
+				return <HabitTracker />;
 			default:
 				return <Dashboard />;
 		}
@@ -62,76 +69,72 @@ function App() {
 
 	return (
 		<div className='app'>
-			{/* Header */}
 			<header className='header'>
 				<div className='header-content'>
 					<div className='logo'>
-						<img
-							src='/setlogic-logo.png'
-							alt='SetLogic'
-							className='logo-image'
-						/>
+						<div className="relative w-10 h-10 flex items-center justify-center mr-3">
+							<div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse" />
+							<img src='/setlogic-logo.png' alt='SetLogic' className='relative z-10 w-8 h-8 object-contain' />
+						</div>
 						<div className='logo-text'>
-							<h1>SetLogic</h1>
-							<span className='logo-tagline'>AI Fitness Coach</span>
+							<h1 className="tracking-tighter font-black uppercase text-xl">SetLogic</h1>
+							<span className='text-[10px] font-black uppercase tracking-[0.3em] text-primary'>AI Analytical Coach</span>
 						</div>
 					</div>
 					<div className='header-user'>
-						<div className='user-greeting'>
-							<span className='greeting-text'>Welcome back,</span>
-							<span className='user-name'>
+						<div className='user-greeting hidden sm:flex'>
+							<span className='greeting-text text-[10px] uppercase font-bold text-muted-foreground'>Uplink Established:</span>
+							<span className='user-name text-xs font-black uppercase tracking-tight ml-2'>
 								{currentUser?.displayName || "Athlete"}
 							</span>
 						</div>
 						<button className='logout-btn' onClick={handleLogout}>
-							<LogOut size={20} />
-							<span>Logout</span>
+							<LogOut size={16} />
+							<span className="text-[10px] font-black uppercase tracking-widest ml-2">Terminate</span>
 						</button>
 					</div>
 				</div>
 			</header>
 
 			<div className='app-layout'>
-				{/* Main Content - Full Width */}
 				<main className='main-content'>{renderView()}</main>
 
-				{/* Bottom Navigation Bar */}
 				<nav className='bottom-nav'>
 					<button
 						className={`nav-item ${activeView === "dashboard" ? "active" : ""}`}
 						onClick={() => setActiveView("dashboard")}>
-						<LineChart size={24} />
-						<span>Dashboard</span>
+						<LineChart size={20} />
+						<span>Status</span>
+					</button>
+					<button
+						className={`nav-item ${activeView === "library" ? "active" : ""}`}
+						onClick={() => setActiveView("library")}>
+						<BookOpen size={20} />
+						<span>Library</span>
 					</button>
 					<button
 						className={`nav-item ${activeView === "workout" ? "active" : ""}`}
 						onClick={() => setActiveView("workout")}>
-						<Dumbbell size={24} />
-						<span>Workout</span>
+						<Dumbbell size={20} />
+						<span>Execute</span>
+					</button>
+					<button
+						className={`nav-item ${activeView === "nexus" ? "active" : ""}`}
+						onClick={() => setActiveView("nexus")}>
+						<Sparkles size={20} />
+						<span>Nexus</span>
 					</button>
 					<button
 						className={`nav-item ${activeView === "chat" ? "active" : ""}`}
 						onClick={() => setActiveView("chat")}>
-						<MessageSquare size={24} />
-						<span>AI Coach</span>
-					</button>
-					<button
-						className={`nav-item ${activeView === "meal" ? "active" : ""}`}
-						onClick={() => setActiveView("meal")}>
-						<Utensils size={24} />
-						<span>Nutrition</span>
+						<MessageSquare size={20} />
+						<span>Nova</span>
 					</button>
 					<button
 						className={`nav-item ${activeView === "wearables" ? "active" : ""}`}
 						onClick={() => setActiveView("wearables")}>
-						<Watch size={24} />
-						<span>Devices</span>
-					</button>
-					<button
-						className={`nav-item ${activeView === "habits" ? "active" : ""}`}
-						onClick={() => setActiveView("habits")}>
-						<Target size={24} />
-						<span>Habits</span>
+						<Footprints size={20} />
+						<span>Velocity</span>
 					</button>
 				</nav>
 			</div>

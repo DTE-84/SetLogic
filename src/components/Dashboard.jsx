@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { TrendingUp, TrendingDown, Dumbbell, Apple, Flame, Target } from 'lucide-react'
+import { TrendingUp, TrendingDown, Dumbbell, Apple, Flame, Target, Footprints } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { useAuth } from '../contexts/AuthContext'
 import './Dashboard.css'
@@ -41,8 +41,8 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h2>{firstName}'s Progress</h2>
-        <p className="dashboard-subtitle">Track your fitness journey with SetLogic</p>
+        <h2 className="text-3xl font-black tracking-tighter uppercase">{firstName}'s Telemetry</h2>
+        <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">High-Fidelity Behavioral Analytics</p>
       </div>
 
       {/* Stats Grid */}
@@ -52,9 +52,9 @@ function Dashboard() {
             <TrendingDown size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Weight Progress</span>
+            <span className="stat-label">Mass Trajectory</span>
             <div className="stat-value">-3.1 kg</div>
-            <span className="stat-trend success">↓ 3.8% from start</span>
+            <span className="stat-trend success">↓ 3.8% Delta</span>
           </div>
         </div>
 
@@ -63,20 +63,20 @@ function Dashboard() {
             <Dumbbell size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Weekly Volume</span>
+            <span className="stat-label">Power Output</span>
             <div className="stat-value">91 sets</div>
-            <span className="stat-trend primary">5 workouts completed</span>
+            <span className="stat-trend primary">High Velocity</span>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon warning">
-            <Flame size={24} />
+            <Footprints size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Avg Calories</span>
-            <div className="stat-value">2,397</div>
-            <span className="stat-trend">Daily average this week</span>
+            <span className="stat-label">Kinetic Velocity</span>
+            <div className="stat-value">8,432</div>
+            <span className="stat-trend">Steps Today</span>
           </div>
         </div>
 
@@ -85,9 +85,9 @@ function Dashboard() {
             <Target size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Streak</span>
+            <span className="stat-label">Protocol Streak</span>
             <div className="stat-value">12 days</div>
-            <span className="stat-trend success">Keep it up!</span>
+            <span className="stat-trend success">Operational</span>
           </div>
         </div>
       </div>
