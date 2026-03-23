@@ -74,7 +74,7 @@ function App() {
 					<div className='logo'>
 						<div className="relative w-10 h-10 flex items-center justify-center mr-3">
 							<div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse" />
-							<img src='/setlogic-logo.png' alt='SetLogic' className='relative z-10 w-8 h-8 object-contain' />
+							<img src='/setlogic-logo.png' alt='SetLogic' className='logo-image relative z-10 w-8 h-8 object-contain' />
 						</div>
 						<div className='logo-text'>
 							<h1 className="tracking-tighter font-black uppercase text-xl">SetLogic</h1>
