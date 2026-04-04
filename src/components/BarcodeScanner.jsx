@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Camera, X, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Camera, X, CheckCircle, AlertCircle } from 'lucide-react';
 import Quagga from '@ericblade/quagga2';
 
 /**
@@ -11,22 +11,65 @@ const BarcodeScanner = ({ onScan, onClose }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState('');
   const [lastScanned, setLastScanned] = useState(null);
-  const scannerRef = useRef(null);
   const videoRef = useRef(null);
 
-  useEffect(() => {
-    if (isScanning) {
-      startScanner();
+  const playBeep = useCallback(() => {
+    // Create simple beep sound
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    gainNode.gain.value = 0.3;
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+  }, []);
+
+  const flashSuccess = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.style.border = '4px solid var(--kinetic-green)';
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.style.border = 'none';
+        }
+      }, 300);
     }
+  }, []);
 
-    return () => {
-      stopScanner();
-    };
-  }, [isScanning]);
+  const handleDetected = useCallback((result) => {
+    if (!result || !result.codeResult) return;
 
-  const startScanner = () => {
+    const barcode = result.codeResult.code;
+    
+    // Prevent duplicate scans (debounce 2 seconds)
+    if (lastScanned === barcode) return;
+    
+    setLastScanned(barcode);
+    
+    // Visual/audio feedback
+    playBeep();
+    flashSuccess();
+    
+    // Pass barcode to parent
+    onScan(barcode);
+    
+    // Reset after 2 seconds to allow rescanning
+    setTimeout(() => setLastScanned(null), 2000);
+  }, [lastScanned, onScan, playBeep, flashSuccess]);
+
+  const stopScanner = useCallback(() => {
+    Quagga.stop();
+    Quagga.offDetected(handleDetected);
+  }, [handleDetected]);
+
+  const startScanner = useCallback(() => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setError('Camera not supported on this device');
+      setTimeout(() => setError('Camera not supported on this device'), 0);
       return;
     }
 
@@ -75,61 +118,17 @@ const BarcodeScanner = ({ onScan, onClose }) => {
     );
 
     Quagga.onDetected(handleDetected);
-  };
+  }, [handleDetected]);
 
-  const stopScanner = () => {
-    Quagga.stop();
-    Quagga.offDetected(handleDetected);
-  };
-
-  const handleDetected = (result) => {
-    if (!result || !result.codeResult) return;
-
-    const barcode = result.codeResult.code;
-    
-    // Prevent duplicate scans (debounce 2 seconds)
-    if (lastScanned === barcode) return;
-    
-    setLastScanned(barcode);
-    
-    // Visual/audio feedback
-    playBeep();
-    flashSuccess();
-    
-    // Pass barcode to parent
-    onScan(barcode);
-    
-    // Reset after 2 seconds to allow rescanning
-    setTimeout(() => setLastScanned(null), 2000);
-  };
-
-  const playBeep = () => {
-    // Create simple beep sound
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    gainNode.gain.value = 0.3;
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
-  };
-
-  const flashSuccess = () => {
-    if (videoRef.current) {
-      videoRef.current.style.border = '4px solid var(--kinetic-green)';
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.style.border = 'none';
-        }
-      }, 300);
+  useEffect(() => {
+    if (isScanning) {
+      startScanner();
     }
-  };
+
+    return () => {
+      stopScanner();
+    };
+  }, [isScanning, startScanner, stopScanner]);
 
   return (
     <div className="scanner-overlay">

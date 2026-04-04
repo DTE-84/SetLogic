@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
-import { ScanBarcode, Plus, Trash2, Edit2, Check } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { ScanBarcode, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import BarcodeScanner from './BarcodeScanner';
 import { 
   getFoodByBarcode, 
   addToUserPantry, 
-  getUserPantryDetails,
-  createCustomFood 
+  getUserPantryDetails 
 } from '../services/foodVault';
 import './FoodLogger.css';
 
@@ -16,17 +15,8 @@ const FoodLogger = () => {
   const [myPantry, setMyPantry] = useState([]);
   const [todaysMeals, setTodaysMeals] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const [showCustomForm, setShowCustomForm] = useState(false);
 
-  useEffect(() => {
-    if (currentUser) {
-      loadUserPantry();
-      loadTodaysMeals();
-    }
-  }, [currentUser]);
-
-  const loadUserPantry = async () => {
+  const loadUserPantry = useCallback(async () => {
     setLoading(true);
     try {
       const pantry = await getUserPantryDetails(currentUser.uid);
@@ -36,14 +26,21 @@ const FoodLogger = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
-  const loadTodaysMeals = () => {
+  const loadTodaysMeals = useCallback(() => {
     // Load from localStorage for now (will integrate with backend later)
     const today = new Date().toISOString().split('T')[0];
     const stored = localStorage.getItem(`meals_${currentUser.uid}_${today}`);
     setTodaysMeals(stored ? JSON.parse(stored) : []);
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      loadUserPantry();
+      loadTodaysMeals();
+    }
+  }, [currentUser, loadUserPantry, loadTodaysMeals]);
 
   const saveTodaysMeals = (meals) => {
     const today = new Date().toISOString().split('T')[0];
@@ -52,7 +49,6 @@ const FoodLogger = () => {
   };
 
   const handleScan = async (barcode) => {
-    setScanning(true);
     try {
       // Look up food in vault/API
       const food = await getFoodByBarcode(barcode, currentUser.uid);
@@ -60,7 +56,6 @@ const FoodLogger = () => {
       if (!food) {
         alert('Food not found. Try creating a custom entry.');
         setShowScanner(false);
-        setShowCustomForm(true);
         return;
       }
 
@@ -86,8 +81,6 @@ const FoodLogger = () => {
     } catch (error) {
       console.error('Error handling scan:', error);
       alert('Error processing barcode. Please try again.');
-    } finally {
-      setScanning(false);
     }
   };
 

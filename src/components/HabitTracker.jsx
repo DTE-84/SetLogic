@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Target, Plus, CheckCircle, Droplet, Moon, Footprints } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import './HabitTracker.css'
@@ -13,7 +13,7 @@ function HabitTracker() {
   const [newHabit, setNewHabit] = useState({ name: '', target_value: '', unit: '' })
 
   // Fetch habits from Python SQL API
-  const fetchHabits = async () => {
+  const fetchHabits = useCallback(async () => {
     if (!currentUser) return
     try {
       const res = await fetch(`${API_URL}/habits/${currentUser.uid}`)
@@ -24,11 +24,11 @@ function HabitTracker() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [currentUser])
 
   useEffect(() => {
     fetchHabits()
-  }, [currentUser])
+  }, [currentUser, fetchHabits])
 
   // Add a new habit via Python API
   const handleAddHabit = async (e) => {

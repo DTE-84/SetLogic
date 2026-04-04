@@ -2,47 +2,47 @@ import { useState, useEffect } from "react";
 import { Search, Info, Play, ChevronRight, Loader2, Dumbbell } from "lucide-react";
 import "./Generator.css"; // Reuse generator styles for consistency
 
+// Placeholder data for high-fidelity demonstration
+const placeholderExercises = [
+  {
+    id: "0001",
+    name: "Barbell Squat",
+    target: "Quads",
+    equipment: "Barbell",
+    gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
+    instructions: ["Place barbell on traps", "Feet shoulder width apart", "Sit back into hips", "Drive through heels to stand"]
+  },
+  {
+    id: "0002",
+    name: "Dumbbell Bench Press",
+    target: "Chest",
+    equipment: "Dumbbells",
+    gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
+    instructions: ["Lie flat on bench", "Press dumbbells upward", "Control the descent", "Keep elbows at 45 degrees"]
+  },
+  {
+    id: "0003",
+    name: "Deadlift",
+    target: "Posterior Chain",
+    equipment: "Barbell",
+    gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
+    instructions: ["Hinge at hips", "Grip bar just outside legs", "Keep back flat", "Pull weight up keeping bar close to shins"]
+  }
+];
+
 const ExerciseLibrary = () => {
   const [search, setSearch] = useState("");
   const [exercises, setExercises] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedExercise, setSelectedExercise] = useState(null);
-
-  // Placeholder data for high-fidelity demonstration
-  const placeholderExercises = [
-    {
-      id: "0001",
-      name: "Barbell Squat",
-      target: "Quads",
-      equipment: "Barbell",
-      gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
-      instructions: ["Place barbell on traps", "Feet shoulder width apart", "Sit back into hips", "Drive through heels to stand"]
-    },
-    {
-      id: "0002",
-      name: "Dumbbell Bench Press",
-      target: "Chest",
-      equipment: "Dumbbells",
-      gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
-      instructions: ["Lie flat on bench", "Press dumbbells upward", "Control the descent", "Keep elbows at 45 degrees"]
-    },
-    {
-      id: "0003",
-      name: "Deadlift",
-      target: "Posterior Chain",
-      equipment: "Barbell",
-      gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
-      instructions: ["Hinge at hips", "Grip bar just outside legs", "Keep back flat", "Pull weight up keeping bar close to shins"]
-    }
-  ];
 
   useEffect(() => {
     // In a real scenario, this would fetch from ExerciseDB API
-    setLoading(true);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setExercises(placeholderExercises);
       setLoading(false);
     }, 800);
+    return () => clearTimeout(timer);
   }, []);
 
   const filteredExercises = exercises.filter(ex => 

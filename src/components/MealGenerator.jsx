@@ -45,7 +45,7 @@ function MealGenerator() {
     meal_prep_time: 'moderate',
     eating_out_frequency: 'occasional'
   })
-
+  
   const [expandedSections, setExpandedSections] = useState({
     safety: true,
     goals: false,
@@ -93,7 +93,8 @@ function MealGenerator() {
     try {
       const result = await generateMealPlan(formData)
       setPlan(result)
-    } catch {
+    } catch (error) {
+      console.error('Error generating meal plan:', error)
       setPlan('Error generating meal plan. Please try again.')
     } finally {
       setIsGenerating(false)

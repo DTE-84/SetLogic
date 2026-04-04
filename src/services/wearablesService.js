@@ -39,7 +39,7 @@ export const fetchAppleHealthData = async (dataType, startDate, endDate) => {
     throw new Error('Apple Health not available');
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     window.webkit.messageHandlers.healthKit.postMessage({
       action: 'queryData',
       type: dataType,

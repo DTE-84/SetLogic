@@ -149,6 +149,12 @@ function App() {
 						<span>Dashboard</span>
 					</button>
 					<button
+    className={`nav-item ${activeView === "meal" ? "active" : ""}`}
+    onClick={() => setActiveView("meal")}>
+    <Utensils size={20} />
+    <span>Meal</span>
+  </button>
+					<button
 						className={`nav-item ${activeView === "food" ? "active" : ""}`}
 						onClick={() => setActiveView("food")}>
 						<ScanBarcode size={20} />
