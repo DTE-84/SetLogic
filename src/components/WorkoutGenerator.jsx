@@ -29,7 +29,7 @@ function WorkoutGenerator() {
     try {
       const result = await generateWorkoutPlan(formData)
       setPlan(result)
-    } catch (error) {
+    } catch  {
       setPlan('Error generating workout plan. Please try again.')
     } finally {
       setIsGenerating(false)

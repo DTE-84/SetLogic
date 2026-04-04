@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, Sparkles, Loader } from 'lucide-react'
-import { chatWithCoach } from '../services/claudeAPI'
+import { chatWithCoach, conversationHistory } from '../services/claudeAPI'
 import { useAuth } from '../contexts/AuthContext'
 import './Chat.css'
 
@@ -37,16 +37,11 @@ function Chat() {
     setIsLoading(true)
 
     try {
-      // Get conversation history for context
-      const conversationHistory = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
-
       const response = await chatWithCoach(conversationHistory, userMessage)
       
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
     } catch (error) {
+      console.error('An error occurred:', error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 

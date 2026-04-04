@@ -52,8 +52,8 @@ function App() {
 				return <Dashboard />;
 			case "chat":
 				return <Chat />;
-				case "food":
-  return <FoodLogger />;
+			case "food":
+				return <FoodLogger />;
 			case "workout":
 				return <WorkoutGenerator />;
 			case "library":
@@ -76,25 +76,63 @@ function App() {
 			<header className='header'>
 				<div className='header-content'>
 					<div className='logo'>
-						<div className="relative w-10 h-10 flex items-center justify-center mr-3">
-							<div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse" />
-							<img src='/setlogic-logo.png' alt='SetLogic' className='logo-image relative z-10 w-8 h-8 object-contain' />
+						<div
+							style={{
+								width: "90px",
+								height: "90px",
+								position: "relative",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								marginRight: "12px",
+							}}>
+							<div
+								style={{
+									width: "90px",
+									height: "90px",
+									position: "relative",
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									marginRight: "12px",
+								}}
+							/>
+							<img
+								src='/SetLogicTransp.png'
+								alt='SetLogic'
+								style={{
+									width: "80px",
+									height: "80px",
+									objectFit: "contain",
+									position: "relative",
+									zIndex: 10,
+									filter: "drop-shadow(0 0 8px rgba(0, 217, 255, 0.4))",
+								}}
+							/>
 						</div>
 						<div className='logo-text'>
-							<h1 className="tracking-tighter font-black uppercase text-xl">SetLogic</h1>
-							<span className='text-[10px] font-black uppercase tracking-[0.3em] text-primary'>AI Analytical Coach</span>
+							<h1 className='tracking-tighter font-black uppercase text-xl'>
+								SetLogic
+							</h1>
+							<span className='text-10px font-black uppercase tracking-wide text-primary'>
+								AI Analytical Coach
+							</span>
 						</div>
 					</div>
 					<div className='header-user'>
 						<div className='user-greeting hidden sm:flex'>
-							<span className='greeting-text text-[10px] uppercase font-bold text-muted-foreground'>Uplink Established:</span>
+							<span className='greeting-text text-[10px] uppercase font-bold text-muted-foreground'>
+								Uplink Established:
+							</span>
 							<span className='user-name text-xs font-black uppercase tracking-tight ml-2'>
 								{currentUser?.displayName || "Athlete"}
 							</span>
 						</div>
 						<button className='logout-btn' onClick={handleLogout}>
 							<LogOut size={16} />
-							<span className="text-[10px] font-black uppercase tracking-widest ml-2">Log Out</span>
+							<span className='text-[10px] font-black uppercase tracking-widest ml-2'>
+								Log Out
+							</span>
 						</button>
 					</div>
 				</div>
@@ -111,11 +149,11 @@ function App() {
 						<span>Dashboard</span>
 					</button>
 					<button
-  className={`nav-item ${activeView === "food" ? "active" : ""}`}
-  onClick={() => setActiveView("food")}>
-  <ScanBarcode size={20} />
-  <span>Food</span>
-</button>
+						className={`nav-item ${activeView === "food" ? "active" : ""}`}
+						onClick={() => setActiveView("food")}>
+						<ScanBarcode size={20} />
+						<span>Food</span>
+					</button>
 					<button
 						className={`nav-item ${activeView === "library" ? "active" : ""}`}
 						onClick={() => setActiveView("library")}>

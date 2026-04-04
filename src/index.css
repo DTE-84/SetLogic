@@ -9,10 +9,10 @@
   --surface-elevated: #222222;
   
   /* Kinetic Green (DTE Standard) */
-  --kinetic-green: #00ff9d;
-  --kinetic-light: #4dffb8;
-  --kinetic-dark: #00cc7e;
-  --kinetic-glow: rgba(0, 255, 157, 0.15);
+  --kinetic-green: #00d9ff;
+  --kinetic-light: #4dffff;
+  --kinetic-dark: #00a8cc;
+  --kinetic-glow: rgba(0, 217, 255, 0.15);
   --kinetic-shimmer: rgba(77, 255, 184, 0.3);
   
   /* High-Contrast Accents */
