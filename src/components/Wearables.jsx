@@ -5,7 +5,7 @@ import { getAvailableProviders, connectAppleHealth, connectGoogleFit, connectFit
 import './Wearables.css';
 
 function Wearables() {
-  const { currentUser } = useAuth();
+  const { currentUser: _currentUser } = useAuth();
   const [availableProviders, setAvailableProviders] = useState([]);
   const [connectedProviders, setConnectedProviders] = useState([]);
   const [loading, setLoading] = useState(false);
