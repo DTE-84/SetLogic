@@ -42,7 +42,7 @@ function Dashboard() {
     <div className="dashboard">
       <div className="dashboard-header">
         <h2 className="text-3xl font-black tracking-tighter uppercase">{firstName}'s Telemetry</h2>
-        <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">High-Fidelity Behavioral Analytics</p>
+        <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">Personalized fitness insights and planning</p>
       </div>
 
       {/* Stats Grid */}
@@ -74,7 +74,7 @@ function Dashboard() {
             <Footprints size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Kinetic Velocity</span>
+            <span className="stat-label">Steps Today</span>
             <div className="stat-value">8,432</div>
             <span className="stat-trend">Steps Today</span>
           </div>
@@ -87,7 +87,7 @@ function Dashboard() {
           <div className="stat-content">
             <span className="stat-label">Protocol Streak</span>
             <div className="stat-value">12 days</div>
-            <span className="stat-trend success">Operational</span>
+            <span className="stat-trend success">On track</span>
           </div>
         </div>
       </div>
@@ -189,3 +189,4 @@ function Dashboard() {
 }
 
 export default Dashboard
+oard

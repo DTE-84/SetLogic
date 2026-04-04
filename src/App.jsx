@@ -90,7 +90,7 @@ function App() {
 						</div>
 						<button className='logout-btn' onClick={handleLogout}>
 							<LogOut size={16} />
-							<span className="text-[10px] font-black uppercase tracking-widest ml-2">Terminate</span>
+							<span className="text-[10px] font-black uppercase tracking-widest ml-2">Log Out</span>
 						</button>
 					</div>
 				</div>
@@ -104,7 +104,7 @@ function App() {
 						className={`nav-item ${activeView === "dashboard" ? "active" : ""}`}
 						onClick={() => setActiveView("dashboard")}>
 						<LineChart size={20} />
-						<span>Status</span>
+						<span>Dashboard</span>
 					</button>
 					<button
 						className={`nav-item ${activeView === "library" ? "active" : ""}`}
@@ -134,7 +134,7 @@ function App() {
 						className={`nav-item ${activeView === "wearables" ? "active" : ""}`}
 						onClick={() => setActiveView("wearables")}>
 						<Footprints size={20} />
-						<span>Velocity</span>
+						<span>Wearables</span>
 					</button>
 				</nav>
 			</div>

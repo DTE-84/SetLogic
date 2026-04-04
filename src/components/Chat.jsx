@@ -11,7 +11,7 @@ function Chat() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Hey ${firstName}! I'm SetLogic, your AI fitness coach. I can help with workout programming, nutrition advice, form tips, and motivation. What's on your mind today?`
+      content: `Hey ${firstName}! I'm your SetLogic AI fitness coach. I can help with workout plans, meal guidance, exercise tips, recovery, and staying consistent. What would you like help with today?`
     }
   ])
   const [input, setInput] = useState('')
@@ -70,7 +70,7 @@ function Chat() {
           <Sparkles size={24} className="chat-icon" />
           <div>
             <h2>AI Coach Chat</h2>
-            <p className="chat-subtitle">Ask anything about fitness and nutrition</p>
+            <p className="chat-subtitle">Get help with workouts, meals, recovery, and fitness goals</p>
           </div>
         </div>
       </div>

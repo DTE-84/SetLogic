@@ -1,0 +1,357 @@
+.food-logger-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.logger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-icon {
+  color: var(--kinetic-green);
+  filter: drop-shadow(0 0 8px var(--kinetic-glow));
+}
+
+.logger-header h2 {
+  font-size: 2rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.logger-subtitle {
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.scan-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: var(--kinetic-green);
+  color: var(--background-primary);
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.scan-btn:hover {
+  background: var(--kinetic-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--kinetic-glow);
+}
+
+/* Daily Summary */
+.daily-summary {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.summary-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.macro-card {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.macro-card:hover {
+  border-color: var(--kinetic-green);
+  transform: translateY(-2px);
+}
+
+.macro-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.macro-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--kinetic-green);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.macro-unit {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Meals Section */
+.meals-section,
+.pantry-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.empty-state {
+  background: var(--surface);
+  border: 2px dashed var(--border-medium);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.meals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.meal-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all 0.2s;
+}
+
+.meal-card:hover {
+  border-color: var(--border-medium);
+  transform: translateX(4px);
+}
+
+.meal-info {
+  flex: 1;
+}
+
+.meal-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  color: var(--text-primary);
+}
+
+.meal-brand {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.meal-macros {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.meal-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.servings-input {
+  width: 70px;
+  padding: 0.5rem;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.servings-input:focus {
+  outline: none;
+  border-color: var(--kinetic-green);
+}
+
+.servings-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.remove-btn {
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-btn:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+/* Pantry Grid */
+.pantry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.pantry-item {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.pantry-item:hover {
+  border-color: var(--kinetic-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--kinetic-glow);
+}
+
+.pantry-item-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.pantry-item-cal {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.quick-add-btn {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--kinetic-green);
+  border: none;
+  border-radius: 50%;
+  color: var(--background-primary);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+.pantry-item:hover .quick-add-btn {
+  opacity: 1;
+}
+
+.loading-text {
+  text-align: center;
+  color: var(--text-tertiary);
+  padding: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .logger-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logger-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .scan-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .macro-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .meal-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .meal-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pantry-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

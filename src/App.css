@@ -49,13 +49,13 @@
 .logo-image {
   width: 40px;
   height: 40px;
-  filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.4));
+  filter: drop-shadow(0 0 8px rgba(0, 255, 157, 0.4));
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
 
 .logo-image:hover {
-  filter: drop-shadow(0 0 16px rgba(0, 217, 255, 0.6));
+  filter: drop-shadow(0 0 16px rgba(0, 255, 157, 0.6));
   transform: scale(1.05);
 }
 
@@ -63,7 +63,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: var(--blue-primary);
+  color: var(--kinetic-green);
   letter-spacing: 0.05em;
 }
 
@@ -101,7 +101,7 @@
 .user-name {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: var(--blue-primary);
+  color: var(--kinetic-green);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -124,9 +124,9 @@
 }
 
 .logout-btn:hover {
-  border-color: var(--blue-primary);
-  color: var(--blue-primary);
-  background: var(--blue-glow);
+  border-color: var(--kinetic-green);
+  color: var(--kinetic-green);
+  background: var(--kinetic-glow);
 }
 
 /* Layout - Mobile First */
@@ -163,13 +163,13 @@
 .rounded-full { border-radius: 9999px; }
 .object-contain { object-fit: contain; }
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-.bg-primary\/20 { background-color: rgba(0, 217, 255, 0.2); }
+.bg-primary\/20 { background-color: rgba(0, 255, 157, 0.2); }
 .uppercase { text-transform: uppercase; }
 .font-black { font-weight: 900; }
 .tracking-tighter { letter-spacing: -0.05em; }
 .text-xl { font-size: 1.25rem; }
 .text-\[10px\] { font-size: 10px; }
-.text-primary { color: var(--blue-primary); }
+.text-primary { color: var(--kinetic-green); }
 .tracking-\[0.3em\] { letter-spacing: 0.3em; }
 
 @keyframes pulse {
@@ -183,7 +183,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(20, 20, 20, 0.98);
+  background: rgba(5, 5, 5, 0.98);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--border-subtle);
   display: grid;
@@ -221,7 +221,7 @@
   transform: translateX(-50%);
   width: 40%;
   height: 3px;
-  background: var(--blue-primary);
+  background: var(--kinetic-green);
   opacity: 0;
   transition: opacity 0.3s ease;
   border-radius: 0 0 3px 3px;
@@ -232,7 +232,7 @@
 }
 
 .bottom-nav .nav-item.active {
-  color: var(--blue-primary);
+  color: var(--kinetic-green);
 }
 
 .bottom-nav .nav-item.active::before {
@@ -244,7 +244,7 @@
 }
 
 .bottom-nav .nav-item.active svg {
-  filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+  filter: drop-shadow(0 0 8px rgba(0, 255, 157, 0.5));
 }
 
 /* Desktop: Larger screens */
