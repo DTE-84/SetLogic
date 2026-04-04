@@ -7,6 +7,7 @@ import {
 	LogOut,
 	Watch,
 	Sparkles,
+	ScanBarcode,
 	BookOpen,
 	Footprints,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import Signup from "./components/Signup";
 import HabitTracker from "./components/HabitTracker";
 import ExerciseLibrary from "./components/ExerciseLibrary";
 import NexusFeed from "./components/NexusFeed";
+import FoodLogger from "./components/FoodLogger";
 import "./App.css";
 
 function App() {
@@ -50,6 +52,8 @@ function App() {
 				return <Dashboard />;
 			case "chat":
 				return <Chat />;
+				case "food":
+  return <FoodLogger />;
 			case "workout":
 				return <WorkoutGenerator />;
 			case "library":
@@ -106,6 +110,12 @@ function App() {
 						<LineChart size={20} />
 						<span>Dashboard</span>
 					</button>
+					<button
+  className={`nav-item ${activeView === "food" ? "active" : ""}`}
+  onClick={() => setActiveView("food")}>
+  <ScanBarcode size={20} />
+  <span>Food</span>
+</button>
 					<button
 						className={`nav-item ${activeView === "library" ? "active" : ""}`}
 						onClick={() => setActiveView("library")}>
