@@ -178,17 +178,18 @@ function Dashboard() {
         </div>
         <button 
           onClick={() => setShowSyncModal(true)}
-          className="bg-primary text-black px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 hover:bg-primary/80 active:scale-95 shadow-[0_0_30px_rgba(0,217,255,0.2)] border border-white/10"
+          className="sync-log-btn"
         >
-          <Activity size={18} />
-          Sync Telemetry
+          <div className="btn-glow" />
+          <Activity size={18} className="relative z-10" />
+          <span className="relative z-10">Add Log</span>
         </button>
       </div>
 
       {/* Unified Telemetry Sync Modal */}
       {showSyncModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/70 backdrop-blur-2xl animate-in fade-in zoom-in duration-300">
-          <div className="bg-[#0A0A0A] border border-white/5 rounded-[4rem] w-full max-w-2xl p-12 relative shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
+        <div className="sync-modal-overlay">
+          <div className="sync-drawer">
             {/* Background Kinetic Element */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
             
@@ -201,8 +202,8 @@ function Dashboard() {
             
             <div className="relative z-10">
               <div className="flex items-center gap-5 mb-12">
-                <div className="w-16 h-16 rounded-[1.5rem] bg-primary/20 flex items-center justify-center border border-primary/20 shadow-[0_0_20px_rgba(0,217,255,0.2)]">
-                  <Zap size={32} className="text-primary" />
+                <div className="diagnostic-circle">
+                  <Zap size={32} className="text-primary icon-shadow" />
                 </div>
                 <div>
                   <h3 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Telemetry Sync</h3>

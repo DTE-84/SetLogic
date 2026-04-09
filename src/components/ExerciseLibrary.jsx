@@ -7,15 +7,20 @@ const ExerciseLibrary = () => {
   const [search, setSearch] = useState("");
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedExercise, setSelectedExercise] = useState(null);
 
   const loadExercises = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
+      console.log("EXERCISE UPLINK INITIATED...");
       const data = await fetchAllExercises(50);
-      setExercises(data);
-    } catch (error) {
-      console.error("Error loading exercises:", error);
+      console.log("EXERCISE DATA RECEIVED:", data.length, "protocols");
+      setExercises(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("EXERCISE UPLINK FAILED:", err);
+      setError(`Telemetry Link Failure: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -31,11 +36,13 @@ const ExerciseLibrary = () => {
     
     if (query.length > 2) {
       setLoading(true);
+      setError(null);
       try {
         const data = await searchExercises(query.toLowerCase());
-        setExercises(data);
-      } catch (error) {
-        console.error("Search error:", error);
+        setExercises(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Search error:", err);
+        setError("Search query rejected by host.");
       } finally {
         setLoading(false);
       }
@@ -97,8 +104,23 @@ const ExerciseLibrary = () => {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Loader2 className="w-12 h-12 animate-spin text-primary" />
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Synchronizing Visual Protocols...</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-6 border border-dashed border-white/10 rounded-[3rem] bg-white/[0.01]">
+          <Info className="w-12 h-12 text-warning/40" />
+          <div className="text-center">
+            <p className="text-white font-bold text-lg mb-2">{error}</p>
+            <p className="text-muted-foreground text-sm max-w-md">The anatomical database is currently unresponsive. Verify RapidAPI credentials in system configuration.</p>
+          </div>
+          <button 
+            onClick={loadExercises}
+            className="px-8 py-3 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all"
+          >
+            Retry Uplink
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -124,6 +146,11 @@ const ExerciseLibrary = () => {
               </div>
             </div>
           ))}
+          {exercises.length === 0 && !loading && (
+            <div className="col-span-full py-20 text-center">
+              <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">No matching protocols found in database.</p>
+            </div>
+          )}
         </div>
       )}
 
