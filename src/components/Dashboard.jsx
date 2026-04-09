@@ -206,7 +206,7 @@ function Dashboard() {
                   <Zap size={32} className="text-primary icon-shadow" />
                 </div>
                 <div>
-                  <h3 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Telemetry Sync</h3>
+                  <h3 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Data Sync</h3>
                   <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mt-3">Establish Daily Biometric Signal</p>
                 </div>
               </div>

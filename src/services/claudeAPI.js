@@ -25,11 +25,22 @@ const callClaude = async (system, userContent, max_tokens = 4000) => {
       system,
       messages: Array.isArray(userContent) ? userContent : [{ role: 'user', content: userContent }],
     }),
-  })
+  });
   
-  const data = await response.json()
-  return data.content[0].text
+  console.log('Response status:', response.status);
+  console.log('Response OK:', response.ok);
+  
+  const responseText = await response.text();
+  console.log('Raw response:', responseText);
+  
+  if (!response.ok) {
+    throw new Error(`API failed: ${response.status} - ${responseText}`);
+  }
+  
+  const data = JSON.parse(responseText);
+  return data;
 }
+
 
 export const generateMealPlan = async (formData) => {
   const systemPrompt = `You are a registered dietitian with 15+ years of clinical experience, specializing in:
