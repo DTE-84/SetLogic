@@ -178,56 +178,81 @@ function Dashboard() {
 
       {/* Manual Entry Modal */}
       {showEntryModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0A0907] border border-white/10 rounded-[2.5rem] w-full max-w-md p-8 relative shadow-2xl">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
+          <div className="bg-[#0A0A0A]/90 border border-white/5 rounded-[3rem] w-full max-w-md p-10 relative shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden group">
+            {/* Ambient Background Glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all duration-700" />
+            
             <button 
               onClick={() => setShowEntryModal(false)}
-              className="absolute top-6 right-6 text-muted-foreground hover:text-white transition-colors"
+              className="absolute top-8 right-8 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-white/10 transition-all z-10"
             >
-              <X size={24} />
+              <X size={20} />
             </button>
             
-            <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">Establish Telemetry</h3>
-            
-            <div className="flex gap-4 mb-8">
-              <button 
-                className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${entryType === 'weight' ? 'bg-primary/10 border-primary text-primary' : 'bg-white/5 border-white/5 text-muted-foreground'}`}
-                onClick={() => setEntryType('weight')}
-              >
-                Weight (kg)
-              </button>
-              <button 
-                className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${entryType === 'steps' ? 'bg-primary/10 border-primary text-primary' : 'bg-white/5 border-white/5 text-muted-foreground'}`}
-                onClick={() => setEntryType('steps')}
-              >
-                Steps
-              </button>
-            </div>
-
-            <form onSubmit={handleManualEntry} className="space-y-6">
-              <div className="form-group">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">
-                  Current {entryType === 'weight' ? 'Mass' : 'Velocity'}
-                </label>
-                <input
-                  type="number"
-                  step={entryType === 'weight' ? "0.1" : "1"}
-                  value={entryValue}
-                  onChange={(e) => setEntryValue(e.target.value)}
-                  placeholder={entryType === 'weight' ? "e.g. 82.5" : "e.g. 10000"}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 focus:outline-none focus:border-primary/40 text-white font-bold"
-                  autoFocus
-                />
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/20 shadow-[0_0_15px_rgba(0,217,255,0.2)]">
+                  {entryType === 'weight' ? <TrendingDown size={24} className="text-primary" /> : <Footprints size={24} className="text-primary" />}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">Establish Signal</h3>
+                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-1">Manual Telemetry Uplink</p>
+                </div>
+              </div>
+              
+              <div className="flex p-1 bg-white/[0.03] border border-white/5 rounded-2xl mb-8">
+                <button 
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryType === 'weight' ? 'bg-primary text-black shadow-[0_0_20px_rgba(0,217,255,0.4)]' : 'text-muted-foreground hover:text-white'}`}
+                  onClick={() => setEntryType('weight')}
+                >
+                  Mass (kg)
+                </button>
+                <button 
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryType === 'steps' ? 'bg-primary text-black shadow-[0_0_20_rgba(0,217,255,0.4)]' : 'text-muted-foreground hover:text-white'}`}
+                  onClick={() => setEntryType('steps')}
+                >
+                  Velocity
+                </button>
               </div>
 
-              <button 
-                type="submit"
-                disabled={saving || !entryValue}
-                className="w-full bg-primary text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-primary/90 transition-all disabled:opacity-50"
-              >
-                {saving ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Log Measurement'}
-              </button>
-            </form>
+              <form onSubmit={handleManualEntry} className="space-y-8">
+                <div className="relative group/input">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-3 block ml-1">
+                    Current {entryType === 'weight' ? 'Body Mass Index' : 'Step Frequency'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step={entryType === 'weight' ? "0.1" : "1"}
+                      value={entryValue}
+                      onChange={(e) => setEntryValue(e.target.value)}
+                      placeholder={entryType === 'weight' ? "00.0" : "0000"}
+                      className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] text-4xl font-black text-white placeholder:text-white/5 transition-all text-center tracking-tighter"
+                      autoFocus
+                    />
+                    <div className="absolute right-8 top-1/2 -translate-y-1/2 text-primary/40 font-black uppercase text-[10px] tracking-widest pointer-events-none">
+                      {entryType === 'weight' ? 'KG' : 'STP'}
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={saving || !entryValue}
+                  className="w-full bg-white text-black py-5 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[11px] hover:bg-primary hover:shadow-[0_0_30px_rgba(0,217,255,0.5)] transition-all duration-500 disabled:opacity-20 flex items-center justify-center gap-3 group/btn"
+                >
+                  {saving ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <>
+                      <span>Confirm Uplink</span>
+                      <TrendingUp size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
