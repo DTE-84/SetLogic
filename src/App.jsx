@@ -23,6 +23,7 @@ import HabitTracker from "./components/HabitTracker";
 import ExerciseLibrary from "./components/ExerciseLibrary";
 import NexusFeed from "./components/NexusFeed";
 import FoodLogger from "./components/FoodLogger";
+import logo from "../public/SetLogicTransp.png";
 import "./App.css";
 
 function App() {
@@ -98,7 +99,7 @@ function App() {
 								}}
 							/>
 							<img
-								src='/SetLogicTransp.png'
+								src={logo}
 								alt='SetLogic'
 								style={{
 									width: "80px",
@@ -149,11 +150,11 @@ function App() {
 						<span>Dashboard</span>
 					</button>
 					<button
-    className={`nav-item ${activeView === "meal" ? "active" : ""}`}
-    onClick={() => setActiveView("meal")}>
-    <Utensils size={20} />
-    <span>Meal</span>
-  </button>
+						className={`nav-item ${activeView === "meal" ? "active" : ""}`}
+						onClick={() => setActiveView("meal")}>
+						<Utensils size={20} />
+						<span>Meal</span>
+					</button>
 					<button
 						className={`nav-item ${activeView === "food" ? "active" : ""}`}
 						onClick={() => setActiveView("food")}>

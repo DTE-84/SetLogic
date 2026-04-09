@@ -35,14 +35,7 @@ function WorkoutGenerator() {
       setIsGenerating(false)
     }
   }
-  const handleLogWorkout = async () => {
-    await saveWorkout(userId, {
-      plan: generatedWorkout,
-      status: 'active',
-      createdAt: new Date()
-    });
-    <button onClick={handleLogWorkout}>Log Workout</button>
-  }
+
   return (
     <div className="generator-container">
       <div className="generator-header">

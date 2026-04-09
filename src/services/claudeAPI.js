@@ -25,16 +25,7 @@ const callClaude = async (system, userContent, max_tokens = 4000) => {
   const data = await response.json()
   return data.content[0].text
 }
-await saveChatMessage(userId, {
-  role: 'user',
-  content: userMessage,
-  timestamp: new Date()
-});
-await saveChatMessage(userId, {
-  role: 'assistant', 
-  content: response.content[0].text,
-  timestamp: new Date()
-});
+
 export const generateMealPlan = async (formData) => {
   const systemPrompt = `You are a registered dietitian with 15+ years of clinical experience, specializing in:
 - Medical nutrition therapy (diabetes, kidney disease, heart disease, cancer recovery)
