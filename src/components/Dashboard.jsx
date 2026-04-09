@@ -168,7 +168,7 @@ function Dashboard() {
         </div>
         <button 
           onClick={() => setShowEntryModal(true)}
-          className="bg-primary text-black px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 hover:bg-primary/80 active:scale-95 shadow-[0_0_20px_rgba(0,217,255,0.3)]"
+          className="bg-gradient-to-r from-[#00ffcc] to-[#1F51FF] text-black px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 hover:bg-primary/80 active:scale-95 shadow-[0_0_20px_rgba(0,217,255,0.3)]"
         >
           <Plus size={16} />
           Log Entry
