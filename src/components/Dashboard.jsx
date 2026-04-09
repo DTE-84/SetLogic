@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { TrendingUp, TrendingDown, Dumbbell, Apple, Flame, Target, Footprints, Loader2, Plus, X } from 'lucide-react'
+import { TrendingUp, TrendingDown, Dumbbell, Apple, Flame, Target, Footprints, Loader2, Plus, X, Activity, Zap } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useAuth } from '../contexts/AuthContext'
 import { 
@@ -8,7 +8,8 @@ import {
   getWearableData, 
   getUserProfile,
   saveBodyMeasurement,
-  saveWearableData
+  saveWearableData,
+  saveWorkout
 } from '../services/firestoreService'
 import './Dashboard.css'
 
@@ -17,9 +18,8 @@ function Dashboard() {
   const firstName = currentUser?.displayName?.split(' ')[0] || 'Athlete'
   
   const [loading, setLoading] = useState(true)
-  const [showEntryModal, setShowEntryModal] = useState(false)
-  const [entryType, setEntryType] = useState('weight') // 'weight' or 'steps'
-  const [entryValue, setEntryValue] = useState('')
+  const [showSyncModal, setShowSyncModal] = useState(false)
+  const [syncData, setSyncData] = useState({ weight: '', steps: '', sets: '' })
   const [saving, setSaving] = useState(false)
   
   const [stats, setStats] = useState({
@@ -45,14 +45,12 @@ function Dashboard() {
         getUserProfile(currentUser.uid)
       ])
 
-      // 1. Process Weight Trend
       const weightTrend = [...measurements].reverse().map(m => ({
         week: new Date(m.createdAt?.toDate?.() || Date.now()).toLocaleDateString([], { weekday: 'short' }),
         weight: parseFloat(m.weight),
         goal: profile?.goalWeight || 180 
       }))
 
-      // Calculate Mass Trajectory Delta
       let massTrajectory = { value: '0.0', delta: '0.0', trend: 'neutral', label: '0% Delta' }
       if (measurements.length >= 2) {
         const latest = parseFloat(measurements[0].weight)
@@ -74,7 +72,6 @@ function Dashboard() {
         }
       }
 
-      // 2. Process Workout Volume (Last 7 Days)
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       const last7Days = Array.from({ length: 7 }, (_, i) => {
         const d = new Date()
@@ -92,13 +89,11 @@ function Dashboard() {
 
       const totalSets = workouts.reduce((acc, w) => acc + (w.sets || 0), 0)
 
-      // 3. Process Calories (From LocalStorage)
       const dateKey = new Date().toISOString().split('T')[0]
       const storedMeals = localStorage.getItem(`meals_${currentUser.uid}_${dateKey}`)
       const todayMeals = storedMeals ? JSON.parse(storedMeals) : []
       const todayCalories = todayMeals.reduce((acc, m) => acc + (m.calories * (m.servings || 1)), 0)
 
-      // 4. Steps
       const stepsToday = wearables.find(w => 
         new Date(w.createdAt?.toDate?.() || Date.now()).toISOString().split('T')[0] === dateKey
       )?.data?.steps || 0
@@ -126,25 +121,40 @@ function Dashboard() {
     fetchTelemetry()
   }, [fetchTelemetry])
 
-  const handleManualEntry = async (e) => {
+  const handleTelemetrySync = async (e) => {
     e.preventDefault()
-    if (!entryValue || saving) return
+    if (saving) return
     
     setSaving(true)
     try {
-      if (entryType === 'weight') {
-        await saveBodyMeasurement(currentUser.uid, { weight: parseFloat(entryValue) })
-      } else {
-        await saveWearableData(currentUser.uid, { 
-          provider: 'manual', 
-          data: { steps: parseInt(entryValue) } 
-        })
+      const promises = []
+      
+      if (syncData.weight) {
+        promises.push(saveBodyMeasurement(currentUser.uid, { weight: parseFloat(syncData.weight) }))
       }
-      setShowEntryModal(false)
-      setEntryValue('')
+      
+      if (syncData.steps) {
+        promises.push(saveWearableData(currentUser.uid, { 
+          provider: 'manual', 
+          data: { steps: parseInt(syncData.steps) } 
+        }))
+      }
+
+      if (syncData.sets) {
+        promises.push(saveWorkout(currentUser.uid, {
+          type: 'Manual Log',
+          sets: parseInt(syncData.sets),
+          status: 'completed',
+          createdAt: new Date()
+        }))
+      }
+
+      await Promise.all(promises)
+      setShowSyncModal(false)
+      setSyncData({ weight: '', steps: '', sets: '' })
       fetchTelemetry()
     } catch (error) {
-      console.error("Entry failed:", error)
+      console.error("Telemetry sync failed:", error)
     } finally {
       setSaving(false)
     }
@@ -167,86 +177,99 @@ function Dashboard() {
           <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">Personalized fitness insights and planning</p>
         </div>
         <button 
-          onClick={() => setShowEntryModal(true)}
-          className="bg-gradient-to-r from-[#00ffcc] to-[#1F51FF] text-black px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 hover:bg-primary/80 active:scale-95 shadow-[0_0_20px_rgba(0,217,255,0.3)]"
+          onClick={() => setShowSyncModal(true)}
+          className="bg-primary text-black px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 hover:bg-primary/80 active:scale-95 shadow-[0_0_30px_rgba(0,217,255,0.2)] border border-white/10"
         >
-          <Plus size={16} />
-          Log Entry
+          <Activity size={18} />
+          Sync Telemetry
         </button>
       </div>
 
-      {/* Manual Entry Modal */}
-      {showEntryModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
-          <div className="bg-[#0A0A0A]/95 border border-white/5 rounded-[3rem] w-full max-w-md p-10 relative shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden group">
-            {/* Ambient Background Glow */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-[80px]" />
+      {/* Unified Telemetry Sync Modal */}
+      {showSyncModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/70 backdrop-blur-2xl animate-in fade-in zoom-in duration-300">
+          <div className="bg-[#0A0A0A] border border-white/5 rounded-[4rem] w-full max-w-2xl p-12 relative shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
+            {/* Background Kinetic Element */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
             
             <button 
-              onClick={() => setShowEntryModal(false)}
-              className="absolute top-8 right-8 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-white/10 transition-all z-10"
+              onClick={() => setShowSyncModal(false)}
+              className="absolute top-10 right-10 w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-white/10 transition-all z-10"
             >
-              <X size={20} />
+              <X size={24} />
             </button>
             
             <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/20">
-                  {entryType === 'weight' ? <TrendingDown size={24} className="text-primary" /> : <Footprints size={24} className="text-primary" />}
+              <div className="flex items-center gap-5 mb-12">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-primary/20 flex items-center justify-center border border-primary/20 shadow-[0_0_20px_rgba(0,217,255,0.2)]">
+                  <Zap size={32} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">Establish Signal</h3>
-                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-1">Manual Telemetry Uplink</p>
+                  <h3 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Telemetry Sync</h3>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mt-3">Establish Daily Biometric Signal</p>
                 </div>
               </div>
-              
-              <div className="flex p-1 bg-white/[0.03] border border-white/5 rounded-2xl mb-8">
-                <button 
-                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryType === 'weight' ? 'bg-primary text-black shadow-[0_0_20px_rgba(0,217,255,0.4)]' : 'text-muted-foreground hover:text-white'}`}
-                  onClick={() => setEntryType('weight')}
-                >
-                  Mass (kg)
-                </button>
-                <button 
-                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryType === 'steps' ? 'bg-primary text-black shadow-[0_0_20px_rgba(0,217,255,0.4)]' : 'text-muted-foreground hover:text-white'}`}
-                  onClick={() => setEntryType('steps')}
-                >
-                  Velocity
-                </button>
-              </div>
 
-              <form onSubmit={handleManualEntry} className="space-y-8">
-                <div className="relative group/input">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-3 block ml-1">
-                    Current {entryType === 'weight' ? 'Body Mass Index' : 'Step Frequency'}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      step={entryType === 'weight' ? "0.1" : "1"}
-                      value={entryValue}
-                      onChange={(e) => setEntryValue(e.target.value)}
-                      placeholder={entryType === 'weight' ? "00.0" : "0000"}
-                      className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] text-4xl font-black text-white placeholder:text-white/5 transition-all text-center tracking-tighter"
-                      autoFocus
-                    />
-                    <div className="absolute right-8 top-1/2 -translate-y-1/2 text-primary/40 font-black uppercase text-[10px] tracking-widest pointer-events-none">
-                      {entryType === 'weight' ? 'KG' : 'STP'}
+              <form onSubmit={handleTelemetrySync} className="space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Mass Input */}
+                  <div className="group">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4 block ml-1">Body Mass (KG)</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        step="0.1"
+                        placeholder="00.0"
+                        value={syncData.weight}
+                        onChange={e => setSyncData({...syncData, weight: e.target.value})}
+                        className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 text-3xl font-black text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] transition-all tracking-tighter"
+                      />
+                      <TrendingDown className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-primary/40 transition-colors" size={24} />
+                    </div>
+                  </div>
+
+                  {/* Steps Input */}
+                  <div className="group">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4 block ml-1">Step Velocity</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        placeholder="0000"
+                        value={syncData.steps}
+                        onChange={e => setSyncData({...syncData, steps: e.target.value})}
+                        className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 text-3xl font-black text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] transition-all tracking-tighter"
+                      />
+                      <Footprints className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-primary/40 transition-colors" size={24} />
+                    </div>
+                  </div>
+
+                  {/* Power Output (Sets) */}
+                  <div className="group md:col-span-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4 block ml-1">Workload (Total Sets)</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        placeholder="00"
+                        value={syncData.sets}
+                        onChange={e => setSyncData({...syncData, sets: e.target.value})}
+                        className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 text-3xl font-black text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] transition-all tracking-tighter"
+                      />
+                      <Dumbbell className="absolute right-8 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-primary/40 transition-colors" size={28} />
                     </div>
                   </div>
                 </div>
 
                 <button 
                   type="submit"
-                  disabled={saving || !entryValue}
-                  className="w-full bg-white text-black py-5 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[11px] hover:bg-primary hover:shadow-[0_0_30px_rgba(0,217,255,0.5)] transition-all duration-500 disabled:opacity-20 flex items-center justify-center gap-3 group/btn"
+                  disabled={saving || (!syncData.weight && !syncData.steps && !syncData.sets)}
+                  className="w-full bg-white text-black py-6 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-xs hover:bg-primary hover:shadow-[0_0_40px_rgba(0,217,255,0.4)] transition-all duration-500 disabled:opacity-10 disabled:grayscale flex items-center justify-center gap-4 group/btn"
                 >
                   {saving ? (
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader2 size={20} className="animate-spin" />
                   ) : (
                     <>
-                      <span>Confirm Uplink</span>
-                      <TrendingUp size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                      <span>Commit Telemetry</span>
+                      <Activity size={20} className="group-hover/btn:scale-125 transition-transform" />
                     </>
                   )}
                 </button>
