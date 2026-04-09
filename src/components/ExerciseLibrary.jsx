@@ -1,34 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Info, Play, ChevronRight, Loader2, Dumbbell } from "lucide-react";
+import { fetchAllExercises, searchExercises } from "../services/exerciseService";
 import "./Generator.css"; // Reuse generator styles for consistency
-
-// Placeholder data for high-fidelity demonstration
-const placeholderExercises = [
-  {
-    id: "0001",
-    name: "Barbell Squat",
-    target: "Quads",
-    equipment: "Barbell",
-    gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
-    instructions: ["Place barbell on traps", "Feet shoulder width apart", "Sit back into hips", "Drive through heels to stand"]
-  },
-  {
-    id: "0002",
-    name: "Dumbbell Bench Press",
-    target: "Chest",
-    equipment: "Dumbbells",
-    gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
-    instructions: ["Lie flat on bench", "Press dumbbells upward", "Control the descent", "Keep elbows at 45 degrees"]
-  },
-  {
-    id: "0003",
-    name: "Deadlift",
-    target: "Posterior Chain",
-    equipment: "Barbell",
-    gifUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6xYFmR0I/giphy.gif",
-    instructions: ["Hinge at hips", "Grip bar just outside legs", "Keep back flat", "Pull weight up keeping bar close to shins"]
-  }
-];
 
 const ExerciseLibrary = () => {
   const [search, setSearch] = useState("");
@@ -36,19 +9,40 @@ const ExerciseLibrary = () => {
   const [loading, setLoading] = useState(true);
   const [selectedExercise, setSelectedExercise] = useState(null);
 
-  useEffect(() => {
-    // In a real scenario, this would fetch from ExerciseDB API
-    const timer = setTimeout(() => {
-      setExercises(placeholderExercises);
+  const loadExercises = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchAllExercises(50);
+      setExercises(data);
+    } catch (error) {
+      console.error("Error loading exercises:", error);
+    } finally {
       setLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
+    }
   }, []);
 
-  const filteredExercises = exercises.filter(ex => 
-    ex.name.toLowerCase().includes(search.toLowerCase()) ||
-    ex.target.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    loadExercises();
+  }, [loadExercises]);
+
+  const handleSearchChange = async (e) => {
+    const query = e.target.value;
+    setSearch(query);
+    
+    if (query.length > 2) {
+      setLoading(true);
+      try {
+        const data = await searchExercises(query.toLowerCase());
+        setExercises(data);
+      } catch (error) {
+        console.error("Search error:", error);
+      } finally {
+        setLoading(false);
+      }
+    } else if (query.length === 0) {
+      loadExercises();
+    }
+  };
 
   return (
     <div className="generator-container">
@@ -67,7 +61,7 @@ const ExerciseLibrary = () => {
             type="text"
             placeholder="Search exercises (e.g. Squat, Chest)..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-12 pr-6 focus:outline-none focus:border-primary/40 focus:bg-white/[0.05] transition-all font-semibold text-white placeholder:text-muted-foreground/40"
           />
         </div>
@@ -79,13 +73,14 @@ const ExerciseLibrary = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredExercises.map((ex) => (
+          {exercises.map((ex) => (
             <div 
               key={ex.id} 
               className="bg-[#0A0907] border border-white/5 rounded-3xl p-6 hover:border-primary/20 transition-all group cursor-pointer"
               onClick={() => setSelectedExercise(ex)}
             >
               <div className="relative aspect-video rounded-2xl bg-black mb-4 overflow-hidden border border-white/5">
+                <img src={ex.gifUrl} alt={ex.name} className="w-full h-full object-cover opacity-30 group-hover:opacity-60 transition-opacity" loading="lazy" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-30 group-hover:opacity-100 transition-opacity">
                    <Play size={40} className="text-primary" />
                 </div>
@@ -93,8 +88,8 @@ const ExerciseLibrary = () => {
                   {ex.target}
                 </div>
               </div>
-              <h3 className="font-bold text-white text-lg mb-1">{ex.name}</h3>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{ex.equipment}</p>
+              <h3 className="font-bold text-white text-lg mb-1 capitalize">{ex.name}</h3>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider capitalize">{ex.equipment}</p>
             </div>
           ))}
         </div>
@@ -115,13 +110,13 @@ const ExerciseLibrary = () => {
                 <Info size={24} className="text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tighter">{selectedExercise.name}</h2>
+                <h2 className="text-2xl font-black text-white tracking-tighter capitalize">{selectedExercise.name}</h2>
                 <p className="text-xs font-black text-primary uppercase tracking-[0.2em]">{selectedExercise.target} Protocol</p>
               </div>
             </div>
 
             <div className="aspect-video rounded-[2rem] bg-black mb-8 overflow-hidden border border-white/5 shadow-inner">
-               <img src={selectedExercise.gifUrl} alt={selectedExercise.name} className="w-full h-full object-cover opacity-80" />
+               <img src={selectedExercise.gifUrl} alt={selectedExercise.name} className="w-full h-full object-contain" />
             </div>
 
             <div className="space-y-6">
@@ -130,15 +125,23 @@ const ExerciseLibrary = () => {
                 Execution Steps
               </h4>
               <ul className="space-y-4">
-                {selectedExercise.instructions.map((step, i) => (
+                {selectedExercise.instructions?.map((step, i) => (
                   <li key={i} className="flex gap-4 items-start">
                     <span className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black text-primary shrink-0 border border-white/5">
                       {i + 1}
                     </span>
                     <p className="text-sm text-muted-foreground font-medium leading-relaxed">{step}</p>
                   </li>
-                ))}
+                )) || <p className="text-sm text-muted-foreground italic">No specific instructions available for this protocol.</p>}
               </ul>
+              
+              <div className="pt-4 border-t border-white/5">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">Primary Equipment</p>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-xs text-white capitalize">
+                  <Dumbbell size={12} className="text-primary" />
+                  {selectedExercise.equipment}
+                </div>
+              </div>
             </div>
           </div>
         </div>

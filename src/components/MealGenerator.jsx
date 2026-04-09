@@ -562,8 +562,28 @@ function MealGenerator() {
               <CheckCircle size={24} className="success-icon" />
               <h3>Your Personalized Nutrition Protocol</h3>
             </div>
-            <div className="result-content">
-              <pre>{plan}</pre>
+            <div className="result-content markdown-view">
+              {plan.split('\n').map((line, index) => {
+                if (line.startsWith('###')) {
+                  return <h4 key={index} className="text-xl font-black mt-8 mb-4 text-primary uppercase tracking-tighter">{line.replace('###', '').trim()}</h4>
+                }
+                if (line.startsWith('##')) {
+                  return <h3 key={index} className="text-2xl font-black mt-10 mb-6 text-white uppercase tracking-tighter border-b border-primary/20 pb-2">{line.replace('##', '').trim()}</h3>
+                }
+                if (line.startsWith('#')) {
+                  return <h2 key={index} className="text-3xl font-black mt-12 mb-8 text-white uppercase tracking-tight">{line.replace('#', '').trim()}</h2>
+                }
+                if (line.startsWith('-') || line.startsWith('*')) {
+                  return <li key={index} className="ml-4 mb-2 text-muted-foreground list-none flex gap-2">
+                    <span className="text-primary mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                    {line.substring(1).trim()}
+                  </li>
+                }
+                if (line.trim() === '') {
+                  return <div key={index} className="h-4" />
+                }
+                return <p key={index} className="mb-4 text-muted-foreground leading-relaxed">{line}</p>
+              })}
             </div>
           </div>
         )}

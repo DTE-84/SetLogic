@@ -2,7 +2,7 @@
  * Claude API Service - Medical-Grade Nutrition Planning
  * Encodes Drew's GNC-level nutrition expertise into prompts
  */
-
+import { saveChatMessage } from './firestoreService';
 const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 const callClaude = async (system, userContent, max_tokens = 4000) => {
@@ -21,10 +21,20 @@ const callClaude = async (system, userContent, max_tokens = 4000) => {
       messages: Array.isArray(userContent) ? userContent : [{ role: 'user', content: userContent }],
     }),
   })
+  
   const data = await response.json()
   return data.content[0].text
 }
-
+await saveChatMessage(userId, {
+  role: 'user',
+  content: userMessage,
+  timestamp: new Date()
+});
+await saveChatMessage(userId, {
+  role: 'assistant', 
+  content: response.content[0].text,
+  timestamp: new Date()
+});
 export const generateMealPlan = async (formData) => {
   const systemPrompt = `You are a registered dietitian with 15+ years of clinical experience, specializing in:
 - Medical nutrition therapy (diabetes, kidney disease, heart disease, cancer recovery)
@@ -172,8 +182,15 @@ export const generateWorkoutPlan = async (formData) => {
 
 export const conversationHistory = []
 
-export const chatWithCoach = async (history, userMessage) => {
-  const systemPrompt = `You are a knowledgeable fitness and nutrition coach. Help users with workout plans, meal guidance, exercise tips, recovery, and staying consistent with their fitness goals. Be concise, practical, and encouraging.`
+export const chatWithCoach = async (history, userMessage, dashboardContext = "") => {
+  const systemPrompt = `You are Nova, a high-fidelity fitness and behavioral nutrition coach for SetLogic. 
+  
+  You must use "Senior Analyst" terminology: 'Behavioral Velocity', 'Data Integrity', 'Goal Acceleration', 'Spending Drift' (for calories), and 'Correlation vs Causation'.
+  
+  CURRENT USER TELEMETRY:
+  ${dashboardContext}
+  
+  Help users with workout plans, meal guidance, and consistency. If you see deviations in their telemetry (e.g. low steps or high calorie drift), proactively address it with professional, analytical insight. Be concise and practical.`
 
   history.push({ role: 'user', content: userMessage })
   const reply = await callClaude(systemPrompt, history, 1024)

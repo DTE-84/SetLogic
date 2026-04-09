@@ -40,13 +40,18 @@
   font-weight: 500;
 }
 
-.scan-btn {
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.scan-btn,
+.custom-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.875rem 1.75rem;
-  background: var(--kinetic-green);
-  color: var(--background-primary);
   border: none;
   border-radius: 0.75rem;
   font-weight: 700;
@@ -58,10 +63,28 @@
   white-space: nowrap;
 }
 
+.scan-btn {
+  background: var(--kinetic-green);
+  color: var(--background-primary);
+}
+
 .scan-btn:hover {
   background: var(--kinetic-light);
   transform: translateY(-2px);
   box-shadow: 0 4px 16px var(--kinetic-glow);
+}
+
+.custom-btn {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+}
+
+.custom-btn:hover {
+  background: var(--border-medium);
+  border-color: var(--kinetic-green);
+  color: var(--kinetic-green);
+  transform: translateY(-2px);
 }
 
 /* Daily Summary */
@@ -321,7 +344,13 @@
     font-size: 1.5rem;
   }
 
-  .scan-btn {
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .scan-btn,
+  .custom-btn {
     width: 100%;
     justify-content: center;
   }

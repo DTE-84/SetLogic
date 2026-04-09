@@ -1,17 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ScanBarcode, Plus, Trash2 } from 'lucide-react';
+import { ScanBarcode, Plus, Trash2, Edit3 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import BarcodeScanner from './BarcodeScanner';
+import CustomFoodEntry from './CustomFoodEntry';
 import { 
   getFoodByBarcode, 
   addToUserPantry, 
-  getUserPantryDetails 
+  getUserPantryDetails,
+  createCustomFood 
 } from '../services/foodVault';
 import './FoodLogger.css';
 
 const FoodLogger = () => {
   const { currentUser } = useAuth();
   const [showScanner, setShowScanner] = useState(false);
+  const [showCustomEntry, setShowCustomEntry] = useState(false);
   const [myPantry, setMyPantry] = useState([]);
   const [todaysMeals, setTodaysMeals] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -54,8 +57,9 @@ const FoodLogger = () => {
       const food = await getFoodByBarcode(barcode, currentUser.uid);
       
       if (!food) {
-        alert('Food not found. Try creating a custom entry.');
+        // If not found, open custom entry modal
         setShowScanner(false);
+        setShowCustomEntry(true);
         return;
       }
 
@@ -81,6 +85,34 @@ const FoodLogger = () => {
     } catch (error) {
       console.error('Error handling scan:', error);
       alert('Error processing barcode. Please try again.');
+    }
+  };
+
+  const handleCustomFood = async (foodData) => {
+    try {
+      // Create custom food in vault
+      const customId = await createCustomFood(currentUser.uid, foodData);
+      
+      // Log to today's meals
+      const newMeal = {
+        id: Date.now(),
+        ...foodData,
+        barcode: customId,
+        servings: 1,
+        timestamp: new Date().toISOString()
+      };
+      
+      saveTodaysMeals([...todaysMeals, newMeal]);
+      
+      // Reload pantry
+      await loadUserPantry();
+      
+      // Close modal
+      setShowCustomEntry(false);
+      
+    } catch (error) {
+      console.error('Error creating custom food:', error);
+      alert('Error saving custom food. Please try again.');
     }
   };
 
@@ -125,10 +157,16 @@ const FoodLogger = () => {
             <p className="logger-subtitle">Community-powered food database. High-fidelity macro intelligence.</p>
           </div>
         </div>
-        <button className="scan-btn" onClick={() => setShowScanner(true)}>
-          <ScanBarcode size={20} />
-          Scan Food
-        </button>
+        <div className="header-actions">
+          <button className="scan-btn" onClick={() => setShowScanner(true)}>
+            <ScanBarcode size={20} />
+            Scan Food
+          </button>
+          <button className="custom-btn" onClick={() => setShowCustomEntry(true)}>
+            <Edit3 size={20} />
+            Add Custom
+          </button>
+        </div>
       </div>
 
       {/* Daily Summary */}
@@ -231,6 +269,14 @@ const FoodLogger = () => {
         <BarcodeScanner 
           onScan={handleScan}
           onClose={() => setShowScanner(false)}
+        />
+      )}
+
+      {/* Custom Food Entry Modal */}
+      {showCustomEntry && (
+        <CustomFoodEntry 
+          onSave={handleCustomFood}
+          onClose={() => setShowCustomEntry(false)}
         />
       )}
     </div>

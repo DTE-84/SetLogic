@@ -1,13 +1,14 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, Sparkles, Loader } from 'lucide-react'
 import { chatWithCoach, conversationHistory } from '../services/claudeAPI'
 import { useAuth } from '../contexts/AuthContext'
+import { getUserProfile, getBodyMeasurements, getWearableData } from '../services/firestoreService'
 import './Chat.css'
 
 function Chat() {
   const { currentUser } = useAuth()
   const firstName = currentUser?.displayName?.split(' ')[0] || 'there'
-  
+
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -16,7 +17,43 @@ function Chat() {
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [telemetry, setTelemetry] = useState(null)
   const messagesEndRef = useRef(null)
+
+  const fetchTelemetry = useCallback(async () => {
+    if (!currentUser) return
+    try {
+      const [profile, measurements, wearables] = await Promise.all([
+        getUserProfile(currentUser.uid),
+        getBodyMeasurements(currentUser.uid, 5),
+        getWearableData(currentUser.uid, 1)
+      ])
+
+      // Get today's food from localStorage (to match FoodLogger for now)
+      const today = new Date().toISOString().split('T')[0]
+      const storedMeals = localStorage.getItem(`meals_${currentUser.uid}_${today}`)
+      const meals = storedMeals ? JSON.parse(storedMeals) : []
+      const macros = meals.reduce((acc, m) => ({
+        p: acc.p + (m.protein * (m.servings || 1)),
+        c: acc.c + (m.carbs * (m.servings || 1)),
+        f: acc.f + (m.fat * (m.servings || 1)),
+        cal: acc.cal + (m.calories * (m.servings || 1))
+      }), { p: 0, c: 0, f: 0, cal: 0 })
+
+      setTelemetry({
+        weight: measurements[0]?.weight || profile?.weight || "Unknown",
+        macros,
+        steps: wearables[0]?.data?.steps || "Unknown",
+        adherence: "85" // Placeholder for now
+      })
+    } catch (error) {
+      console.error("Telemetry uplink failed:", error)
+    }
+  }, [currentUser])
+
+  useEffect(() => {
+    fetchTelemetry()
+  }, [fetchTelemetry])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -31,14 +68,22 @@ function Chat() {
 
     const userMessage = input.trim()
     setInput('')
-    
+
     // Add user message
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
 
     try {
-      const response = await chatWithCoach(conversationHistory, userMessage)
-      
+      const dashboardContext = telemetry ? `
+SYSTEM TELEMETRY CONTEXT:
+- Weight: ${telemetry.weight} lbs
+- Daily Macros: P${Math.round(telemetry.macros.p)}g / C${Math.round(telemetry.macros.c)}g / F${Math.round(telemetry.macros.f)}g (${Math.round(telemetry.macros.cal)} kcal)
+- Step Velocity: ${telemetry.steps} steps
+- Behavioral Adherence: ${telemetry.adherence}%
+` : "TELEMETRY: No recent data synced."
+
+      const response = await chatWithCoach(conversationHistory, userMessage, dashboardContext)
+
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
     } catch (error) {
       console.error('An error occurred:', error);
