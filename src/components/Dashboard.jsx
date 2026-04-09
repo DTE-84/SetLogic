@@ -269,55 +269,10 @@ function Dashboard() {
           </div>
         </div>
       </div>
-        <div className="stat-card">
-          <div className={`stat-icon ${stats.metrics.massTrajectory.trend}`}>
-            <TrendingDown size={24} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Mass Trajectory</span>
-            <div className="stat-value">{stats.metrics.massTrajectory.value}</div>
-            <span className={`stat-trend ${stats.metrics.massTrajectory.trend}`}>
-              {stats.metrics.massTrajectory.delta} | {stats.metrics.massTrajectory.label}
-            </span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon primary">
-            <Dumbbell size={24} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Power Output</span>
-            <div className="stat-value">{stats.metrics.powerOutput.value}</div>
-            <span className="stat-trend primary">{stats.metrics.powerOutput.trend}</span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon warning">
-            <Footprints size={24} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Steps Today</span>
-            <div className="stat-value">{stats.metrics.stepsToday.value}</div>
-            <span className="stat-trend">Real-time Sync</span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon primary">
-            <Target size={24} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Protocol Streak</span>
-            <div className="stat-value">{stats.metrics.streak.value}</div>
-            <span className="stat-trend success">On track</span>
-          </div>
-        </div>
-      </div>
 
       {/* Charts Grid */}
       <div className="charts-grid">
+
         {/* Weight Progress */}
         <div className="chart-card full">
           <div className="chart-header">
@@ -408,8 +363,10 @@ function Dashboard() {
         <p className="copyright">© 2026 DTE Solutions LLC // SetLogic Division</p>
       </footer>
     </div>
+
   )
 }
+
 
 export default Dashboard
 
