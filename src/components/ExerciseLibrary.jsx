@@ -54,15 +54,15 @@ const ExerciseLibrary = () => {
         </div>
       </div>
 
-      <div className="search-bar-container" style={{ marginBottom: '2rem' }}>
+      <div className="search-bar-container" style={{ marginBottom: '3rem', maxWidth: '800px', margin: '0 auto 3rem' }}>
         <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-all duration-300" />
           <input
             type="text"
-            placeholder="Search exercises (e.g. Squat, Chest)..."
+            placeholder="Search anatomical protocols (e.g. Squat, Chest, Quads)..."
             value={search}
             onChange={handleSearchChange}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 pl-12 pr-6 focus:outline-none focus:border-primary/40 focus:bg-white/[0.05] transition-all font-semibold text-white placeholder:text-muted-foreground/40"
+            className="w-full bg-white/[0.03] border border-white/10 rounded-[2rem] py-5 pl-16 pr-8 focus:outline-none focus:border-primary/40 focus:bg-white/[0.05] focus:shadow-[0_0_30px_rgba(0,217,255,0.15)] transition-all font-bold text-white placeholder:text-muted-foreground/30 text-lg tracking-tight"
           />
         </div>
       </div>

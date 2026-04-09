@@ -75,24 +75,29 @@ function Chat() {
 
     try {
       const dashboardContext = telemetry ? `
-SYSTEM TELEMETRY CONTEXT:
-- Weight: ${telemetry.weight} lbs
-- Daily Macros: P${Math.round(telemetry.macros.p)}g / C${Math.round(telemetry.macros.c)}g / F${Math.round(telemetry.macros.f)}g (${Math.round(telemetry.macros.cal)} kcal)
-- Step Velocity: ${telemetry.steps} steps
-- Behavioral Adherence: ${telemetry.adherence}%
-` : "TELEMETRY: No recent data synced."
+    SYSTEM TELEMETRY CONTEXT:
+    - Weight: ${telemetry.weight} lbs
+    - Daily Macros: P${Math.round(telemetry.macros.p)}g / C${Math.round(telemetry.macros.c)}g / F${Math.round(telemetry.macros.f)}g (${Math.round(telemetry.macros.cal)} kcal)
+    - Step Velocity: ${telemetry.steps} steps
+    - Behavioral Adherence: ${telemetry.adherence}%
+    ` : "TELEMETRY: No recent data synced."
 
+      console.log("NOVA UPLINK INITIATED:", { userMessage, telemetryAvailable: !!telemetry });
       const response = await chatWithCoach(conversationHistory, userMessage, dashboardContext)
+      console.log("NOVA RESPONSE RECEIVED:", response.substring(0, 100) + "...");
 
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("NOVA UPLINK FAILED:", {
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause
+      });
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.' 
+        content: `Sorry, I encountered an error [${error.message}]. Please check your console for detailed telemetry diagnostics.` 
       }])
-    } finally {
-      setIsLoading(false)
+    } finally {      setIsLoading(false)
     }
   }
 

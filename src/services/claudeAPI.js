@@ -6,6 +6,11 @@ import { saveChatMessage } from './firestoreService';
 const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 const callClaude = async (system, userContent, max_tokens = 4000) => {
+  if (!ANTHROPIC_API_KEY) {
+    console.error("CRITICAL: VITE_ANTHROPIC_API_KEY is missing from environment.");
+    throw new Error("API configuration missing. Uplink failed.");
+  }
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {

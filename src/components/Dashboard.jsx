@@ -17,8 +17,10 @@ function Dashboard() {
   const firstName = currentUser?.displayName?.split(' ')[0] || 'Athlete'
   
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(null) // tracks which metric is saving: 'weight', 'workout', 'steps'
-  const [inputs, setInputs] = useState({ weight: '', sets: '', steps: '' })
+  const [showEntryModal, setShowEntryModal] = useState(false)
+  const [entryType, setEntryType] = useState('weight') // 'weight' or 'steps'
+  const [entryValue, setEntryValue] = useState('')
+  const [saving, setSaving] = useState(false)
   
   const [stats, setStats] = useState({
     weightTrend: [],
@@ -43,12 +45,14 @@ function Dashboard() {
         getUserProfile(currentUser.uid)
       ])
 
+      // 1. Process Weight Trend
       const weightTrend = [...measurements].reverse().map(m => ({
         week: new Date(m.createdAt?.toDate?.() || Date.now()).toLocaleDateString([], { weekday: 'short' }),
         weight: parseFloat(m.weight),
         goal: profile?.goalWeight || 180 
       }))
 
+      // Calculate Mass Trajectory Delta
       let massTrajectory = { value: '0.0', delta: '0.0', trend: 'neutral', label: '0% Delta' }
       if (measurements.length >= 2) {
         const latest = parseFloat(measurements[0].weight)
@@ -70,6 +74,7 @@ function Dashboard() {
         }
       }
 
+      // 2. Process Workout Volume (Last 7 Days)
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       const last7Days = Array.from({ length: 7 }, (_, i) => {
         const d = new Date()
@@ -87,11 +92,13 @@ function Dashboard() {
 
       const totalSets = workouts.reduce((acc, w) => acc + (w.sets || 0), 0)
 
+      // 3. Process Calories (From LocalStorage)
       const dateKey = new Date().toISOString().split('T')[0]
       const storedMeals = localStorage.getItem(`meals_${currentUser.uid}_${dateKey}`)
       const todayMeals = storedMeals ? JSON.parse(storedMeals) : []
       const todayCalories = todayMeals.reduce((acc, m) => acc + (m.calories * (m.servings || 1)), 0)
 
+      // 4. Steps
       const stepsToday = wearables.find(w => 
         new Date(w.createdAt?.toDate?.() || Date.now()).toISOString().split('T')[0] === dateKey
       )?.data?.steps || 0
@@ -119,29 +126,27 @@ function Dashboard() {
     fetchTelemetry()
   }, [fetchTelemetry])
 
-  const handleUpdate = async (type) => {
-    const val = inputs[type]
-    if (!val || saving) return
+  const handleManualEntry = async (e) => {
+    e.preventDefault()
+    if (!entryValue || saving) return
     
-    setSaving(type)
+    setSaving(true)
     try {
-      if (type === 'weight') {
-        await saveBodyMeasurement(currentUser.uid, { weight: parseFloat(val) })
-      } else if (type === 'steps') {
+      if (entryType === 'weight') {
+        await saveBodyMeasurement(currentUser.uid, { weight: parseFloat(entryValue) })
+      } else {
         await saveWearableData(currentUser.uid, { 
           provider: 'manual', 
-          data: { steps: parseInt(val) } 
+          data: { steps: parseInt(entryValue) } 
         })
-      } else if (type === 'sets') {
-        await getWorkouts(currentUser.uid) // Just to follow patterns
-        // Logic for logging workout sets would go here
       }
-      setInputs(prev => ({ ...prev, [type]: '' }))
+      setShowEntryModal(false)
+      setEntryValue('')
       fetchTelemetry()
     } catch (error) {
-      console.error(`${type} update failed:`, error)
+      console.error("Entry failed:", error)
     } finally {
-      setSaving(null)
+      setSaving(false)
     }
   }
 
@@ -156,123 +161,152 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h2 className="text-3xl font-black tracking-tighter uppercase">{firstName}'s Telemetry</h2>
-        <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">Personalized fitness insights and planning</p>
+      <div className="dashboard-header flex justify-between items-start">
+        <div>
+          <h2 className="text-3xl font-black tracking-tighter uppercase">{firstName}'s Telemetry</h2>
+          <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">Personalized fitness insights and planning</p>
+        </div>
+        <button 
+          onClick={() => setShowEntryModal(true)}
+          className="bg-primary text-black px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 hover:bg-primary/80 active:scale-95 shadow-[0_0_20px_rgba(0,217,255,0.3)]"
+        >
+          <Plus size={16} />
+          Log Entry
+        </button>
       </div>
 
-      {/* Stats Grid with Integrated Inputs */}
+      {/* Manual Entry Modal */}
+      {showEntryModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
+          <div className="bg-[#0A0A0A]/95 border border-white/5 rounded-[3rem] w-full max-w-md p-10 relative shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden group">
+            {/* Ambient Background Glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-[80px]" />
+            
+            <button 
+              onClick={() => setShowEntryModal(false)}
+              className="absolute top-8 right-8 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-white/10 transition-all z-10"
+            >
+              <X size={20} />
+            </button>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/20">
+                  {entryType === 'weight' ? <TrendingDown size={24} className="text-primary" /> : <Footprints size={24} className="text-primary" />}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">Establish Signal</h3>
+                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-1">Manual Telemetry Uplink</p>
+                </div>
+              </div>
+              
+              <div className="flex p-1 bg-white/[0.03] border border-white/5 rounded-2xl mb-8">
+                <button 
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryType === 'weight' ? 'bg-primary text-black shadow-[0_0_20px_rgba(0,217,255,0.4)]' : 'text-muted-foreground hover:text-white'}`}
+                  onClick={() => setEntryType('weight')}
+                >
+                  Mass (kg)
+                </button>
+                <button 
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryType === 'steps' ? 'bg-primary text-black shadow-[0_0_20px_rgba(0,217,255,0.4)]' : 'text-muted-foreground hover:text-white'}`}
+                  onClick={() => setEntryType('steps')}
+                >
+                  Velocity
+                </button>
+              </div>
+
+              <form onSubmit={handleManualEntry} className="space-y-8">
+                <div className="relative group/input">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-3 block ml-1">
+                    Current {entryType === 'weight' ? 'Body Mass Index' : 'Step Frequency'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step={entryType === 'weight' ? "0.1" : "1"}
+                      value={entryValue}
+                      onChange={(e) => setEntryValue(e.target.value)}
+                      placeholder={entryType === 'weight' ? "00.0" : "0000"}
+                      className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] text-4xl font-black text-white placeholder:text-white/5 transition-all text-center tracking-tighter"
+                      autoFocus
+                    />
+                    <div className="absolute right-8 top-1/2 -translate-y-1/2 text-primary/40 font-black uppercase text-[10px] tracking-widest pointer-events-none">
+                      {entryType === 'weight' ? 'KG' : 'STP'}
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={saving || !entryValue}
+                  className="w-full bg-white text-black py-5 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[11px] hover:bg-primary hover:shadow-[0_0_30px_rgba(0,217,255,0.5)] transition-all duration-500 disabled:opacity-20 flex items-center justify-center gap-3 group/btn"
+                >
+                  {saving ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <>
+                      <span>Confirm Uplink</span>
+                      <TrendingUp size={16} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stats Grid */}
       <div className="stats-grid">
-        {/* MASS TRAJECTORY */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 bg-white/[0.03] border border-white/5 rounded-2xl p-2 group-focus-within:border-primary/40 transition-all">
-            <input 
-              type="number" 
-              placeholder="LOG MASS (kg)..."
-              value={inputs.weight}
-              onChange={e => setInputs({...inputs, weight: e.target.value})}
-              className="flex-1 bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest p-1 text-white placeholder:text-muted-foreground/40"
-            />
-            <button 
-              onClick={() => handleUpdate('weight')}
-              className={`p-1 rounded-lg transition-all ${inputs.weight ? 'text-primary scale-110' : 'text-muted-foreground opacity-20'}`}
-            >
-              {saving === 'weight' ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-            </button>
+        <div className="stat-card">
+          <div className={`stat-icon ${stats.metrics.massTrajectory.trend}`}>
+            <TrendingDown size={24} />
           </div>
-          <div className="stat-card">
-            <div className={`stat-icon ${stats.metrics.massTrajectory.trend}`}>
-              <TrendingDown size={24} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-label">Mass Trajectory</span>
-              <div className="stat-value">{stats.metrics.massTrajectory.value}</div>
-              <span className={`stat-trend ${stats.metrics.massTrajectory.trend}`}>
-                {stats.metrics.massTrajectory.delta} | {stats.metrics.massTrajectory.label}
-              </span>
-            </div>
+          <div className="stat-content">
+            <span className="stat-label">Mass Trajectory</span>
+            <div className="stat-value">{stats.metrics.massTrajectory.value}</div>
+            <span className={`stat-trend ${stats.metrics.massTrajectory.trend}`}>
+              {stats.metrics.massTrajectory.delta} | {stats.metrics.massTrajectory.label}
+            </span>
           </div>
         </div>
 
-        {/* POWER OUTPUT */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 bg-white/[0.03] border border-white/5 rounded-2xl p-2 group-focus-within:border-primary/40 transition-all">
-            <input 
-              type="number" 
-              placeholder="LOG SETS..."
-              value={inputs.sets}
-              onChange={e => setInputs({...inputs, sets: e.target.value})}
-              className="flex-1 bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest p-1 text-white placeholder:text-muted-foreground/40"
-            />
-            <button 
-              onClick={() => handleUpdate('sets')}
-              className={`p-1 rounded-lg transition-all ${inputs.sets ? 'text-primary scale-110' : 'text-muted-foreground opacity-20'}`}
-            >
-              {saving === 'sets' ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-            </button>
+        <div className="stat-card">
+          <div className="stat-icon primary">
+            <Dumbbell size={24} />
           </div>
-          <div className="stat-card">
-            <div className="stat-icon primary">
-              <Dumbbell size={24} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-label">Power Output</span>
-              <div className="stat-value">{stats.metrics.powerOutput.value}</div>
-              <span className="stat-trend primary">{stats.metrics.powerOutput.trend}</span>
-            </div>
+          <div className="stat-content">
+            <span className="stat-label">Power Output</span>
+            <div className="stat-value">{stats.metrics.powerOutput.value}</div>
+            <span className="stat-trend primary">{stats.metrics.powerOutput.trend}</span>
           </div>
         </div>
 
-        {/* STEPS TODAY */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 bg-white/[0.03] border border-white/5 rounded-2xl p-2 group-focus-within:border-primary/40 transition-all">
-            <input 
-              type="number" 
-              placeholder="LOG VELOCITY..."
-              value={inputs.steps}
-              onChange={e => setInputs({...inputs, steps: e.target.value})}
-              className="flex-1 bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest p-1 text-white placeholder:text-muted-foreground/40"
-            />
-            <button 
-              onClick={() => handleUpdate('steps')}
-              className={`p-1 rounded-lg transition-all ${inputs.steps ? 'text-primary scale-110' : 'text-muted-foreground opacity-20'}`}
-            >
-              {saving === 'steps' ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-            </button>
+        <div className="stat-card">
+          <div className="stat-icon warning">
+            <Footprints size={24} />
           </div>
-          <div className="stat-card">
-            <div className="stat-icon warning">
-              <Footprints size={24} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-label">Steps Today</span>
-              <div className="stat-value">{stats.metrics.stepsToday.value}</div>
-              <span className="stat-trend">Real-time Sync</span>
-            </div>
+          <div className="stat-content">
+            <span className="stat-label">Steps Today</span>
+            <div className="stat-value">{stats.metrics.stepsToday.value}</div>
+            <span className="stat-trend">Real-time Sync</span>
           </div>
         </div>
 
-        {/* STREAK */}
-        <div className="flex flex-col gap-2">
-          <div className="h-[38px] flex items-center px-4 bg-white/[0.01] rounded-2xl border border-dashed border-white/5">
-            <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Autonomous Calculation</span>
+        <div className="stat-card">
+          <div className="stat-icon primary">
+            <Target size={24} />
           </div>
-          <div className="stat-card">
-            <div className="stat-icon primary">
-              <Target size={24} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-label">Protocol Streak</span>
-              <div className="stat-value">{stats.metrics.streak.value}</div>
-              <span className="stat-trend success">On track</span>
-            </div>
+          <div className="stat-content">
+            <span className="stat-label">Protocol Streak</span>
+            <div className="stat-value">{stats.metrics.streak.value}</div>
+            <span className="stat-trend success">On track</span>
           </div>
         </div>
       </div>
 
       {/* Charts Grid */}
       <div className="charts-grid">
-
         {/* Weight Progress */}
         <div className="chart-card full">
           <div className="chart-header">
@@ -289,7 +323,7 @@ function Dashboard() {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="week" stroke="#808080" style={{ fontSize: '0.75rem' }} />
-              <YAxis stroke="#808080" domain={['dataMin - 2', 'dataMax + 2']} style={{ fontSize: '0.75rem' }} />
+              <YAxis stroke="#808080" domain={['dataMin - 1', 'dataMax + 1']} style={{ fontSize: '0.75rem' }} />
               <Tooltip 
                 contentStyle={{
                   background: 'var(--surface-elevated)',
@@ -363,10 +397,7 @@ function Dashboard() {
         <p className="copyright">© 2026 DTE Solutions LLC // SetLogic Division</p>
       </footer>
     </div>
-
   )
 }
 
-
 export default Dashboard
-
