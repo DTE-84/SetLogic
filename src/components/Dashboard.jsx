@@ -167,12 +167,12 @@ function Dashboard() {
           <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">Personalized fitness insights and planning</p>
         </div>
         <button 
-          onClick={() => setShowEntryModal(true)}
-          className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
-        >
-          <Plus size={14} />
-          Log Entry
-        </button>
+  onClick={() => setShowEntryModal(true)} 
+  className="bg-primary text-white hover:bg-primary/90 px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm hover:shadow active:scale-95"
+> 
+  <Plus size={16} strokeWidth={3} /> 
+  Log Entry 
+</button>
       </div>
 
       {/* Manual Entry Modal */}
