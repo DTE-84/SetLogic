@@ -23,7 +23,6 @@ import HabitTracker from "./components/HabitTracker";
 import ExerciseLibrary from "./components/ExerciseLibrary";
 import NexusFeed from "./components/NexusFeed";
 import FoodLogger from "./components/FoodLogger";
-import logo from "../public/SetLogicTransp.png";
 import "./App.css";
 
 function App() {
@@ -99,7 +98,7 @@ function App() {
 								}}
 							/>
 							<img
-								src={logo}
+								src='/SetLogicTransp.png'
 								alt='SetLogic'
 								style={{
 									width: "80px",

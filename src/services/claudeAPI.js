@@ -1,23 +1,10 @@
-/**
- * Claude API Service - Medical-Grade Nutrition Planning
- * Encodes Drew's GNC-level nutrition expertise into prompts
- */
-import { saveChatMessage } from './firestoreService';
 const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 const callClaude = async (system, userContent, max_tokens = 4000) => {
-  if (!ANTHROPIC_API_KEY) {
-    console.error("CRITICAL: VITE_ANTHROPIC_API_KEY is missing from environment.");
-    throw new Error("API configuration missing. Uplink failed.");
-  }
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('http://localhost:3001/api/claude', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-calls': 'true',
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
@@ -26,20 +13,17 @@ const callClaude = async (system, userContent, max_tokens = 4000) => {
       messages: Array.isArray(userContent) ? userContent : [{ role: 'user', content: userContent }],
     }),
   });
-  
-  console.log('Response status:', response.status);
-  console.log('Response OK:', response.ok);
-  
-  const responseText = await response.text();
-  console.log('Raw response:', responseText);
-  
+
   if (!response.ok) {
-    throw new Error(`API failed: ${response.status} - ${responseText}`);
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'API call failed');
   }
+
+  const data = await response.json();
   
-  const data = JSON.parse(responseText);
-  return data;
-}
+  // Extract just the text content from Claude's response
+  return data.content?.[0]?.text || data;
+};
 
 
 export const generateMealPlan = async (formData) => {
