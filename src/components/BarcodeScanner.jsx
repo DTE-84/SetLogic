@@ -153,7 +153,7 @@ const BarcodeScanner = ({ onScan, onClose }) => {
           </div>
         ) : !isScanning ? (
           <div className="scanner-start">
-            <Camera size={64} className="camera-icon" />
+            <Camera color="#00d9ff" size={64} className="camera-icon" />
             <h4>Ready to Scan</h4>
             <p>Position the barcode within the frame</p>
             <button className="start-btn" onClick={() => setIsScanning(true)}>

@@ -112,7 +112,7 @@ function Chat() {
     <div className="chat-container">
       <div className="chat-header">
         <div className="chat-title">
-          <Sparkles size={24} className="chat-icon" />
+          <Sparkles color="#00d9ff" size={24} className="chat-icon" />
           <div>
             <h2>AI Coach Chat</h2>
             <p className="chat-subtitle">Get help with workouts, meals, recovery, and fitness goals</p>

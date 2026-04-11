@@ -54,7 +54,7 @@ const NexusFeed = () => {
   return (
     <div className="generator-container">
       <div className="generator-header">
-        <Sparkles size={32} className="generator-icon" />
+        <Sparkles color="#00d9ff" size={32} className="generator-icon" />
         <div>
           <h2>The Nexus Feed</h2>
           <p className="generator-subtitle">High-fidelity community telemetry and PR tracking.</p>

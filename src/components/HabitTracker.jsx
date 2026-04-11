@@ -79,7 +79,7 @@ function HabitTracker() {
   return (
     <div className="habit-container">
       <div className="habit-header">
-        <Target size={32} className="header-icon" />
+        <Target color="#00d9ff" size={32} className="header-icon" />
         <div>
           <h2>Daily Habits</h2>
           <p className="habit-subtitle">Track your consistency with SQL & Python</p>
@@ -134,7 +134,7 @@ function HabitTracker() {
                     {getIcon(habit.name)}
                   </div>
                   <h3>{habit.name}</h3>
-                  {isComplete && <CheckCircle size={20} className="success-icon" />}
+                  {isComplete && <CheckCircle color="#00d9ff" size={20} className="success-icon" />}
                 </div>
 
                 <div className="habit-progress-bar">

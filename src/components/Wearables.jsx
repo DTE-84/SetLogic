@@ -76,7 +76,7 @@ function Wearables() {
   return (
     <div className="wearables-container">
       <div className="wearables-header">
-        <Smartphone size={32} className="header-icon" />
+        <Smartphone color="#00d9ff" size={32} className="header-icon" />
         <div>
           <h2>Connect Your Devices</h2>
           <p className="wearables-subtitle">

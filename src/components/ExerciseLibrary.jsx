@@ -56,7 +56,7 @@ const ExerciseLibrary = () => {
 
       {/* Header */}
       <div className="generator-header">
-        <Dumbbell size={32} className="generator-icon" />
+        <Dumbbell color="#00d9ff" size={32} className="generator-icon" />
         <div>
           <h2>Exercise Library</h2>
           <p className="generator-subtitle">Browse and search {exercises.length}+ exercises with form guides</p>

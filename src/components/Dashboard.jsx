@@ -203,7 +203,7 @@ function Dashboard() {
             <div className="relative z-10">
               <div className="flex items-center gap-5 mb-12">
                 <div className="diagnostic-circle">
-                  <Zap size={32} className="text-primary icon-shadow" />
+                  <Zap color="#00d9ff" size={32} className="text-primary icon-shadow" />
                 </div>
                 <div>
                   <h3 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Data Sync</h3>

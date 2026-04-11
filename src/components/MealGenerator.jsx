@@ -6,6 +6,12 @@ import {
 	AlertTriangle,
 	ChevronRight,
 	ChevronDown,
+	Target,
+	Activity,
+	Flame,
+	Leaf,
+	Zap,
+	Calendar,
 } from "lucide-react";
 import { generateMealPlan } from "../services/claudeAPI";
 import "./Generator.css";
@@ -121,7 +127,7 @@ function MealGenerator() {
 	return (
 		<div className='generator-container'>
 			<div className='generator-header'>
-				<Utensils size={32} className='generator-icon' />
+				<Utensils color="#00d9ff" size={32} className='generator-icon' />
 				<div>
 					<h2>Medical-Grade Nutrition Planning</h2>
 					<p className='generator-subtitle'>
@@ -203,9 +209,10 @@ function MealGenerator() {
 					<div className='form-section'>
 						<div className='section-header' onClick={() => toggleSection("goals")}>
 							<div className='section-title'>
+								<Target size={20} className='section-icon' />
 								<h3>Goals & Activity</h3>
 							</div>
-							{expandedSections.goals ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+							{expandedSections.goals ? <ChevronDown size={20} className='section-chevron' /> : <ChevronRight size={20} className='section-chevron' />}
 						</div>
 
 						{expandedSections.goals && (
@@ -262,10 +269,11 @@ function MealGenerator() {
 					<div className='form-section'>
 						<div className='section-header' onClick={() => toggleSection("biometrics")}>
 							<div className='section-title'>
+								<Activity size={20} className='section-icon' />
 								<h3>Biometrics</h3>
 								<span className='required-badge'>REQUIRED</span>
 							</div>
-							{expandedSections.biometrics ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+							{expandedSections.biometrics ? <ChevronDown size={20} className='section-chevron' /> : <ChevronRight size={20} className='section-chevron' />}
 						</div>
 
 						{expandedSections.biometrics && (
@@ -301,9 +309,10 @@ function MealGenerator() {
           <div className='form-section'>
             <div className='section-header' onClick={() => toggleSection("nutrition")}>
               <div className='section-title'>
+                <Flame size={20} className='section-icon' />
                 <h3>Nutrition Targets (Optional)</h3>
               </div>
-              {expandedSections.nutrition ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              {expandedSections.nutrition ? <ChevronDown size={20} className='section-chevron' /> : <ChevronRight size={20} className='section-chevron' />}
             </div>
             {expandedSections.nutrition && (
               <div className='section-content'>
@@ -335,9 +344,10 @@ function MealGenerator() {
           <div className='form-section'>
             <div className='section-header' onClick={() => toggleSection("dietary")}>
               <div className='section-title'>
+                <Leaf size={20} className='section-icon' />
                 <h3>Dietary Preferences</h3>
               </div>
-              {expandedSections.dietary ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              {expandedSections.dietary ? <ChevronDown size={20} className='section-chevron' /> : <ChevronRight size={20} className='section-chevron' />}
             </div>
             {expandedSections.dietary && (
               <div className='section-content'>
@@ -385,9 +395,10 @@ function MealGenerator() {
           <div className='form-section'>
             <div className='section-header' onClick={() => toggleSection("micros")}>
               <div className='section-title'>
+                <Zap size={20} className='section-icon' />
                 <h3>Micronutrient Intelligence</h3>
               </div>
-              {expandedSections.micros ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              {expandedSections.micros ? <ChevronDown size={20} className='section-chevron' /> : <ChevronRight size={20} className='section-chevron' />}
             </div>
             {expandedSections.micros && (
               <div className='section-content'>
@@ -407,9 +418,10 @@ function MealGenerator() {
           <div className='form-section'>
             <div className='section-header' onClick={() => toggleSection("lifestyle")}>
               <div className='section-title'>
+                <Calendar size={20} className='section-icon' />
                 <h3>Lifestyle Factors</h3>
               </div>
-              {expandedSections.lifestyle ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              {expandedSections.lifestyle ? <ChevronDown size={20} className='section-chevron' /> : <ChevronRight size={20} className='section-chevron' />}
             </div>
             {expandedSections.lifestyle && (
               <div className='section-content'>
@@ -498,10 +510,14 @@ function MealGenerator() {
       <style jsx>{`
         .form-section {
           background: var(--surface);
-          border: 1px solid var(--border-subtle);
+          border: 1px solid rgba(0, 217, 255, 0.25);
           border-radius: 12px;
           margin-bottom: 1rem;
           overflow: hidden;
+        }
+
+        .form-section:hover {
+          border-color: rgba(0, 217, 255, 0.45);
         }
         .section-header {
           padding: 1.25rem 1.5rem;
@@ -525,8 +541,21 @@ function MealGenerator() {
           font-size: 1.1rem;
           font-weight: 700;
         }
+        .section-icon {
+          color: var(--blue-primary);
+          filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.4));
+          flex-shrink: 0;
+        }
         .section-icon.critical {
           color: #ff6b35;
+          filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.4));
+        }
+        .section-chevron {
+          color: var(--blue-primary);
+          flex-shrink: 0;
+        }
+        .section-header svg:last-child {
+          color: var(--blue-primary);
         }
         .required-badge {
           font-size: 0.7rem;

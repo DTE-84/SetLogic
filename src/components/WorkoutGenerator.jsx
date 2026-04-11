@@ -39,7 +39,7 @@ function WorkoutGenerator() {
   return (
     <div className="generator-container">
       <div className="generator-header">
-        <Dumbbell size={32} className="generator-icon" />
+        <Dumbbell color="#00d9ff" size={32} className="generator-icon" />
         <div>
           <h2>AI Workout Plan Generator</h2>
           <p className="generator-subtitle">Get a personalized training program in seconds</p>
