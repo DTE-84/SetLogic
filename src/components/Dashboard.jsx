@@ -190,92 +190,67 @@ function Dashboard() {
       {showSyncModal && (
         <div className="sync-modal-overlay">
           <div className="sync-drawer">
-            {/* Background Kinetic Element */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-            
             <button 
               onClick={() => setShowSyncModal(false)}
-              className="absolute top-10 right-10 w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-white/10 transition-all z-10"
+              className="sync-drawer-close"
             >
-              <X size={24} />
+              <X size={20} />
             </button>
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-5 mb-12">
-                <div className="diagnostic-circle">
-                  <Zap color="#00d9ff" size={32} className="text-primary icon-shadow" />
+
+            <div className="sync-drawer-header">
+              <div className="diagnostic-circle">
+                <Zap color="#00d9ff" size={24} className="icon-shadow" />
+              </div>
+              <div>
+                <h3>Log Today's Data</h3>
+                <p>Update your daily biometric telemetry</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleTelemetrySync} className="sync-form">
+              <div className="sync-form-grid">
+                <div className="sync-field">
+                  <label><TrendingDown size={14} /> Body Mass (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="e.g. 82.5"
+                    value={syncData.weight}
+                    onChange={e => setSyncData({...syncData, weight: e.target.value})}
+                  />
                 </div>
-                <div>
-                  <h3 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Data Sync</h3>
-                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mt-3">Establish Daily Biometric Signal</p>
+                <div className="sync-field">
+                  <label><Footprints size={14} /> Steps Today</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 8500"
+                    value={syncData.steps}
+                    onChange={e => setSyncData({...syncData, steps: e.target.value})}
+                  />
+                </div>
+                <div className="sync-field sync-field-full">
+                  <label><Dumbbell size={14} /> Workout Sets</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 24"
+                    value={syncData.sets}
+                    onChange={e => setSyncData({...syncData, sets: e.target.value})}
+                  />
                 </div>
               </div>
 
-              <form onSubmit={handleTelemetrySync} className="space-y-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Mass Input */}
-                  <div className="group">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4 block ml-1">Body Mass (KG)</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        step="0.1"
-                        placeholder="00.0"
-                        value={syncData.weight}
-                        onChange={e => setSyncData({...syncData, weight: e.target.value})}
-                        className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 text-3xl font-black text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] transition-all tracking-tighter"
-                      />
-                      <TrendingDown className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-primary/40 transition-colors" size={24} />
-                    </div>
-                  </div>
-
-                  {/* Steps Input */}
-                  <div className="group">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4 block ml-1">Step Velocity</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        placeholder="0000"
-                        value={syncData.steps}
-                        onChange={e => setSyncData({...syncData, steps: e.target.value})}
-                        className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 text-3xl font-black text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] transition-all tracking-tighter"
-                      />
-                      <Footprints className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-primary/40 transition-colors" size={24} />
-                    </div>
-                  </div>
-
-                  {/* Power Output (Sets) */}
-                  <div className="group md:col-span-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4 block ml-1">Workload (Total Sets)</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        placeholder="00"
-                        value={syncData.sets}
-                        onChange={e => setSyncData({...syncData, sets: e.target.value})}
-                        className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] py-6 px-8 text-3xl font-black text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.04] transition-all tracking-tighter"
-                      />
-                      <Dumbbell className="absolute right-8 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-primary/40 transition-colors" size={28} />
-                    </div>
-                  </div>
-                </div>
-
-                <button 
-                  type="submit"
-                  disabled={saving || (!syncData.weight && !syncData.steps && !syncData.sets)}
-                  className="w-full bg-white text-black py-6 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-xs hover:bg-primary hover:shadow-[0_0_40px_rgba(0,217,255,0.4)] transition-all duration-500 disabled:opacity-10 disabled:grayscale flex items-center justify-center gap-4 group/btn"
-                >
-                  {saving ? (
-                    <Loader2 size={20} className="animate-spin" />
-                  ) : (
-                    <>
-                      <span>Commit Telemetry</span>
-                      <Activity size={20} className="group-hover/btn:scale-125 transition-transform" />
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
+              <button
+                type="submit"
+                className="generate-btn"
+                disabled={saving || (!syncData.weight && !syncData.steps && !syncData.sets)}
+              >
+                {saving ? (
+                  <><Loader2 size={18} className="spinner" /> Saving...</>
+                ) : (
+                  <><Activity size={18} /> Commit Telemetry</>
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}

@@ -47,6 +47,27 @@ app.post('/api/claude', async (req, res) => {
   }
 });
 
+// Exercise image proxy — attaches RapidAPI auth headers so GIFs load in the browser
+app.get('/api/exercise-image', async (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).send('Missing url param');
+  try {
+    const response = await fetch(decodeURIComponent(url), {
+      headers: {
+        'x-rapidapi-key': process.env.VITE_RAPIDAPI_KEY,
+        'x-rapidapi-host': 'exercisedb.p.rapidapi.com',
+      }
+    });
+    if (!response.ok) return res.status(response.status).send('Image fetch failed');
+    const contentType = response.headers.get('content-type') || 'image/gif';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    response.body.pipe(res);
+  } catch (error) {
+    res.status(500).send('Image proxy error');
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 SetLogic proxy running on http://localhost:${PORT}`);

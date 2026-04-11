@@ -18,7 +18,8 @@ const ExerciseLibrary = () => {
     setError(null)
     try {
       const data = await fetchAllExercises(50)
-      setExercises(Array.isArray(data) ? data : [])
+      const exercises = Array.isArray(data) ? data : []
+      setExercises(exercises)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -119,12 +120,10 @@ const ExerciseLibrary = () => {
             {filtered.map(ex => (
               <div key={ex.id} className="exercise-card" onClick={() => setSelected(ex)}>
                 <div className="exercise-card-image">
-                  <img
-                    src={ex.gifUrl}
-                    alt={ex.name}
-                    loading="lazy"
-                    onError={e => { e.target.style.display='none'; e.target.parentElement.setAttribute('data-empty','true') }}
-                  />
+                  <div className="exercise-placeholder">
+                    <Dumbbell size={32} className="exercise-placeholder-icon" />
+                    <span className="exercise-placeholder-part">{ex.bodyPart}</span>
+                  </div>
                 </div>
                 <div className="exercise-card-body">
                   <span className="exercise-tag">{ex.target}</span>
@@ -159,11 +158,11 @@ const ExerciseLibrary = () => {
             </div>
 
             <div className="exercise-modal-gif">
-              <img
-                src={selected.gifUrl}
-                alt={selected.name}
-                onError={e => { e.target.style.display='none' }}
-              />
+              <div className="exercise-placeholder exercise-placeholder-large">
+                <Dumbbell size={48} className="exercise-placeholder-icon" />
+                <span className="exercise-placeholder-part">{selected.bodyPart}</span>
+                {selected.difficulty && <span className="exercise-difficulty-badge">{selected.difficulty}</span>}
+              </div>
             </div>
 
             {selected.instructions?.length > 0 && (
@@ -300,34 +299,52 @@ const ExerciseLibrary = () => {
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
-        .exercise-card-image[data-empty='true'] {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--border-medium);
-        }
-
-        .exercise-card-image[data-empty='true']::after {
-          content: '🏋️';
-          font-size: 2.5rem;
-          opacity: 0.3;
-        }
-
         .exercise-card-image {
           aspect-ratio: 1;
           background: var(--background-secondary);
           overflow: hidden;
         }
 
-        .exercise-card-image img {
+        .exercise-placeholder {
           width: 100%;
           height: 100%;
-          object-fit: cover;
-          transition: transform 0.3s ease;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          background: linear-gradient(135deg, var(--background-secondary), var(--surface));
         }
 
-        .exercise-card:hover .exercise-card-image img {
-          transform: scale(1.04);
+        .exercise-placeholder-large {
+          min-height: 180px;
+          border-radius: 12px;
+          border: 1px solid var(--border-subtle);
+          gap: 0.75rem;
+        }
+
+        .exercise-placeholder-icon {
+          color: rgba(0, 217, 255, 0.3);
+        }
+
+        .exercise-placeholder-part {
+          font-size: 0.7rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--text-tertiary);
+        }
+
+        .exercise-difficulty-badge {
+          font-size: 0.65rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: var(--blue-primary);
+          background: rgba(0, 217, 255, 0.08);
+          border: 1px solid rgba(0, 217, 255, 0.2);
+          border-radius: 4px;
+          padding: 0.2rem 0.5rem;
         }
 
         .exercise-card-body {
