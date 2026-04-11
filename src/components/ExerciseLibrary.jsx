@@ -121,7 +121,7 @@ const ExerciseLibrary = () => {
       {loading ? (
         <div className="library-loading">
           <Loader2 size={32} className="library-spinner" />
-          <p>Loading exercises...</p>
+          <p>Loading full library...</p>
         </div>
       ) : error ? (
         <div className="library-error">
@@ -136,11 +136,11 @@ const ExerciseLibrary = () => {
           <p>No exercises found for "{search || activeFilter}"</p>
         </div>
       ) : (
-        <>
-          <p className="library-count">{filtered.length} exercises</p>
+        <div className="library-viewport">
+          <p className="library-count">{filtered.length} exercises identified</p>
           <div className="library-grid">
-            {visible.map(ex => (
-              <div key={ex.id} className="exercise-card" onClick={() => setSelected(ex)}>
+            {visible.map((ex, index) => (
+              <div key={`${ex.id}-${index}`} className="exercise-card" onClick={() => setSelected(ex)}>
                 <div className="exercise-card-image">
                   <div className="exercise-placeholder">
                     <Dumbbell size={32} className="exercise-placeholder-icon" />
@@ -167,7 +167,7 @@ const ExerciseLibrary = () => {
               Load more ({filtered.length - visibleCount} remaining)
             </button>
           )}
-        </>
+        </div>
       )}
 
       {/* Detail Modal */}
@@ -213,11 +213,33 @@ const ExerciseLibrary = () => {
       )}
 
       <style>{`
+        .library-viewport {
+          max-height: 52vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-right: 0.5rem;
+          margin-top: 1rem;
+          scrollbar-width: thin;
+          scrollbar-color: var(--blue-primary) transparent;
+        }
+
+        /* Custom scrollbar for library-viewport */
+        .library-viewport::-webkit-scrollbar {
+          width: 5px;
+        }
+        .library-viewport::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .library-viewport::-webkit-scrollbar-thumb {
+          background: var(--blue-primary);
+          border-radius: 10px;
+        }
+
         .library-controls {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
-          margin-bottom: 2rem;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
         }
 
         .library-search {
@@ -301,11 +323,13 @@ const ExerciseLibrary = () => {
         }
 
         .library-count {
-          font-size: 0.8rem;
-          color: var(--text-tertiary);
+          font-size: 0.75rem;
+          font-weight: 800;
+          color: var(--blue-primary);
           text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin-bottom: 1.25rem;
+          letter-spacing: 0.15em;
+          margin-bottom: 0.75rem;
+          opacity: 0.8;
         }
 
         .library-grid {
@@ -601,6 +625,11 @@ const ExerciseLibrary = () => {
           }
           .exercise-modal { padding: 1.5rem; }
           .exercise-modal-header h2 { font-size: 1.4rem; }
+          
+          /* Viewport Lock for Mobile */
+          .library-viewport {
+            max-height: 48vh;
+          }
         }
 
         .library-load-more {
