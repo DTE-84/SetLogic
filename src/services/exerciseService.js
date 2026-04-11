@@ -16,14 +16,37 @@ const options = {
 
 /**
  * Fetch all exercises (cached locally if possible)
+ * Note: API may cap results per request, so we fetch multiple pages
  */
-export const fetchAllExercises = async (limit = 50) => {
+export const fetchAllExercises = async (totalLimit = 1300) => {
+  const PAGE_SIZE = 10; // API cap confirmed in telemetry
+  const numPages = Math.ceil(totalLimit / PAGE_SIZE);
+  
   try {
-    const response = await fetch(`https://${RAPIDAPI_HOST}/exercises?limit=${limit}`, options);
-    if (!response.ok) throw new Error('Network response was not ok');
-    return await response.json();
+    console.log(`📡 SetLogic: Starting batch fetch of ${totalLimit} exercises...`);
+    
+    // Create an array of fetch promises for parallel execution with slight staggered delay
+    const fetchPromises = Array.from({ length: numPages }, (_, i) => {
+      const offset = i * PAGE_SIZE;
+      return new Promise(resolve => setTimeout(resolve, i * 15)).then(() => 
+        fetch(`https://${RAPIDAPI_HOST}/exercises?limit=${PAGE_SIZE}&offset=${offset}`, options)
+          .then(response => {
+            if (!response.ok) throw new Error(`Fetch failed for offset ${offset}`);
+            return response.json();
+          })
+      );
+    });
+
+    const results = await Promise.all(fetchPromises);
+    const combined = results.flat();
+    
+    // Filter out duplicates just in case (API offset behavior varies)
+    const unique = Array.from(new Map(combined.map(ex => [ex.id, ex])).values());
+    
+    console.log(`✅ SetLogic: Successfully aggregated ${unique.length} unique exercises.`);
+    return unique;
   } catch (error) {
-    console.error('Error fetching exercises:', error);
+    console.error('Error fetching exercises in batch:', error);
     throw error;
   }
 };

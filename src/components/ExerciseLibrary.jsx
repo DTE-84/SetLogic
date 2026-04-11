@@ -3,7 +3,9 @@ import { Search, Dumbbell, Loader2, X, ChevronRight } from 'lucide-react'
 import { fetchAllExercises, searchExercises } from '../services/exerciseService'
 import './Generator.css'
 
-const MUSCLE_FILTERS = ['All', 'Chest', 'Back', 'Shoulders', 'Upper Arms', 'Upper Legs', 'Lower Legs', 'Waist', 'Cardio']
+const MUSCLE_FILTERS = ['All', 'Abs', 'Back', 'Chest', 'Shoulders', 'Arms', 'Legs', 'Cardio']
+
+const PAGE_SIZE = 1000
 
 const ExerciseLibrary = () => {
   const [search, setSearch] = useState('')
@@ -12,13 +14,20 @@ const ExerciseLibrary = () => {
   const [error, setError] = useState(null)
   const [selected, setSelected] = useState(null)
   const [activeFilter, setActiveFilter] = useState('All')
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   const loadExercises = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const data = await fetchAllExercises(50)
-      const exercises = Array.isArray(data) ? data : []
+      // Explicitly request full library (1300)
+      const data = await fetchAllExercises(1300)
+      let exercises = Array.isArray(data) ? data : []
+      
+      // Shuffle the exercises for better default variety
+      exercises = exercises.sort(() => Math.random() - 0.5);
+      
+      console.log(`✅ SetLogic: Loaded ${exercises.length} exercises from telemetry.`);
       setExercises(exercises)
     } catch (err) {
       setError(err.message)
@@ -32,6 +41,7 @@ const ExerciseLibrary = () => {
   const handleSearch = async (e) => {
     const query = e.target.value
     setSearch(query)
+    setVisibleCount(1000)
     if (query.length > 2) {
       setLoading(true)
       try {
@@ -49,8 +59,20 @@ const ExerciseLibrary = () => {
 
   const filtered = activeFilter === 'All'
     ? exercises
-    : exercises.filter(ex => ex.target?.toLowerCase().includes(activeFilter.toLowerCase()) ||
-        ex.bodyPart?.toLowerCase().includes(activeFilter.toLowerCase()))
+    : exercises.filter(ex => {
+        const target = ex.target?.toLowerCase() || '';
+        const bodyPart = ex.bodyPart?.toLowerCase() || '';
+        const filter = activeFilter.toLowerCase();
+        
+        if (filter === 'abs') return target === 'abs' || bodyPart === 'waist';
+        if (filter === 'arms') return bodyPart.includes('arms') || target.includes('biceps') || target.includes('triceps') || target.includes('forearms');
+        if (filter === 'shoulders') return bodyPart.includes('shoulders') || target.includes('delts');
+        if (filter === 'legs') return bodyPart.includes('legs') || target.includes('quads') || target.includes('glutes') || target.includes('hamstrings') || target.includes('calves');
+        return target.includes(filter) || bodyPart.includes(filter);
+      })
+
+  const visible = filtered.slice(0, visibleCount)
+  console.log(`🔍 SetLogic: Displaying ${visible.length} of ${filtered.length} filtered exercises (VisibleCount: ${visibleCount})`);
 
   return (
     <div className="generator-container">
@@ -87,7 +109,7 @@ const ExerciseLibrary = () => {
             <button
               key={f}
               className={`library-filter-btn ${activeFilter === f ? 'active' : ''}`}
-              onClick={() => setActiveFilter(f)}
+              onClick={() => { setActiveFilter(f); setVisibleCount(1000) }}
             >
               {f}
             </button>
@@ -117,7 +139,7 @@ const ExerciseLibrary = () => {
         <>
           <p className="library-count">{filtered.length} exercises</p>
           <div className="library-grid">
-            {filtered.map(ex => (
+            {visible.map(ex => (
               <div key={ex.id} className="exercise-card" onClick={() => setSelected(ex)}>
                 <div className="exercise-card-image">
                   <div className="exercise-placeholder">
@@ -137,6 +159,14 @@ const ExerciseLibrary = () => {
               </div>
             ))}
           </div>
+          {visibleCount < filtered.length && (
+            <button
+              className="library-load-more"
+              onClick={() => setVisibleCount(v => v + PAGE_SIZE)}
+            >
+              Load more ({filtered.length - visibleCount} remaining)
+            </button>
+          )}
         </>
       )}
 
@@ -571,6 +601,28 @@ const ExerciseLibrary = () => {
           }
           .exercise-modal { padding: 1.5rem; }
           .exercise-modal-header h2 { font-size: 1.4rem; }
+        }
+
+        .library-load-more {
+          display: block;
+          width: 100%;
+          margin-top: 1.5rem;
+          padding: 0.875rem;
+          background: var(--surface);
+          border: 1px solid rgba(0, 217, 255, 0.25);
+          border-radius: 8px;
+          color: var(--blue-primary);
+          font-size: 0.85rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .library-load-more:hover {
+          background: rgba(0, 217, 255, 0.06);
+          border-color: rgba(0, 217, 255, 0.5);
         }
       `}</style>
     </div>
