@@ -134,6 +134,7 @@
   width: 100%;
   background: linear-gradient(135deg, var(--blue-primary), var(--blue-light));
   border: none;
+  border-color: #00d9ff;
   border-radius: 8px;
   padding: 1rem 2rem;
   color: var(--background-primary);
@@ -151,6 +152,7 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  color: #00d9ff;
 }
 
 .generate-btn::before {

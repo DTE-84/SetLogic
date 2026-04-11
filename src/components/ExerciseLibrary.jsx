@@ -1,179 +1,563 @@
-import { useState, useEffect, useCallback } from "react";
-import { Search, Info, Play, ChevronRight, Loader2, Dumbbell, Target } from "lucide-react";
-import { fetchAllExercises, searchExercises } from "../services/exerciseService";
-import "./Generator.css"; // Reuse generator styles for consistency
+import { useState, useEffect, useCallback } from 'react'
+import { Search, Dumbbell, Loader2, X, ChevronRight } from 'lucide-react'
+import { fetchAllExercises, searchExercises } from '../services/exerciseService'
+import './Generator.css'
+
+const MUSCLE_FILTERS = ['All', 'Chest', 'Back', 'Shoulders', 'Upper Arms', 'Upper Legs', 'Lower Legs', 'Waist', 'Cardio']
 
 const ExerciseLibrary = () => {
-  const [search, setSearch] = useState("");
-  const [exercises, setExercises] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [search, setSearch] = useState('')
+  const [exercises, setExercises] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [selected, setSelected] = useState(null)
+  const [activeFilter, setActiveFilter] = useState('All')
 
   const loadExercises = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const data = await fetchAllExercises(50);
-      setExercises(Array.isArray(data) ? data : []);
+      const data = await fetchAllExercises(50)
+      setExercises(Array.isArray(data) ? data : [])
     } catch (err) {
-      console.error("EXERCISE UPLINK FAILED:", err);
-      setError(`Telemetry Link Failure: ${err.message}`);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
-  useEffect(() => {
-    loadExercises();
-  }, [loadExercises]);
+  useEffect(() => { loadExercises() }, [loadExercises])
 
-  const handleSearchChange = async (e) => {
-    const query = e.target.value;
-    setSearch(query);
-    
+  const handleSearch = async (e) => {
+    const query = e.target.value
+    setSearch(query)
     if (query.length > 2) {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
       try {
-        const data = await searchExercises(query.toLowerCase());
-        setExercises(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Search error:", err);
-        setError("Search query rejected by host.");
+        const data = await searchExercises(query.toLowerCase())
+        setExercises(Array.isArray(data) ? data : [])
+      } catch {
+        setError('Search failed. Please try again.')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     } else if (query.length === 0) {
-      loadExercises();
+      loadExercises()
     }
-  };
+  }
+
+  const filtered = activeFilter === 'All'
+    ? exercises
+    : exercises.filter(ex => ex.target?.toLowerCase().includes(activeFilter.toLowerCase()) ||
+        ex.bodyPart?.toLowerCase().includes(activeFilter.toLowerCase()))
 
   return (
-    <div className="generator-container" style={{ padding: '2rem' }}>
-      {/* Header Section */}
-      <div className="generator-header" style={{ marginBottom: '4rem', border: 'none' }}>
-        <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/20 shadow-[0_0_20px_rgba(0,217,255,0.2)] mb-6">
-          <Dumbbell size={32} className="text-primary" />
-        </div>
+    <div className="generator-container">
+
+      {/* Header */}
+      <div className="generator-header">
+        <Dumbbell size={32} className="generator-icon" />
         <div>
-          <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Visual Logic Library</h2>
-          <p className="text-xs font-black uppercase tracking-[0.4em] text-primary mt-2">High-Fidelity Form Protocols</p>
+          <h2>Exercise Library</h2>
+          <p className="generator-subtitle">Browse and search {exercises.length}+ exercises with form guides</p>
         </div>
       </div>
 
-      {/* Search Section */}
-      <div className="search-section" style={{ marginBottom: '6rem', maxWidth: '900px' }}>
-        <div className="relative group">
-          <div className="absolute inset-y-0 left-8 flex items-center pointer-events-none">
-            <Search className="w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-all duration-300" />
-          </div>
+      {/* Search + Filters */}
+      <div className="library-controls">
+        <div className="library-search">
+          <Search size={18} className="library-search-icon" />
           <input
             type="text"
-            placeholder="Search anatomical protocols (e.g. Chest, Quads, Squat)..."
+            placeholder="Search by name, muscle, or equipment..."
             value={search}
-            onChange={handleSearchChange}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-full py-6 pl-20 pr-8 outline-none text-xl font-bold text-white focus:border-primary/40 focus:bg-white/[0.05] transition-all tracking-tight shadow-2xl placeholder:text-muted-foreground/20"
+            onChange={handleSearch}
+            className="library-search-input"
           />
+          {search && (
+            <button className="library-search-clear" onClick={() => { setSearch(''); loadExercises() }}>
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        <div className="library-filters">
+          {MUSCLE_FILTERS.map(f => (
+            <button
+              key={f}
+              className={`library-filter-btn ${activeFilter === f ? 'active' : ''}`}
+              onClick={() => setActiveFilter(f)}
+            >
+              {f}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Content */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-40 gap-6">
-          <Loader2 className="w-12 h-12 animate-spin text-primary" />
-          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary animate-pulse">Establishing Signal...</p>
+        <div className="library-loading">
+          <Loader2 size={32} className="library-spinner" />
+          <p>Loading exercises...</p>
         </div>
       ) : error ? (
-        <div className="p-20 text-center border border-dashed border-white/10 rounded-[3rem] bg-white/[0.01]">
-          <p className="text-white font-bold text-xl mb-4 uppercase">{error}</p>
-          <button onClick={loadExercises} className="bg-primary text-black px-8 py-3 rounded-full font-black uppercase text-[10px] tracking-widest">Retry Uplink</button>
+        <div className="library-error">
+          <p>{error}</p>
+          <button className="generate-btn" style={{ width: 'auto', marginTop: '1rem' }} onClick={loadExercises}>
+            Retry
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="library-empty">
+          <Dumbbell size={40} />
+          <p>No exercises found for "{search || activeFilter}"</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          {exercises.map((ex) => (
-            <div 
-              key={ex.id} 
-              className="group bg-[#0A0A0A] border border-white/5 rounded-[2.5rem] p-8 hover:border-primary/20 transition-all duration-500 h-full flex flex-col shadow-2xl cursor-pointer"
-              onClick={() => setSelectedExercise(ex)}
-            >
-              {/* Image Box */}
-              <div className="relative aspect-square rounded-[2rem] bg-black mb-8 overflow-hidden border border-white/5">
-                <img src={ex.gifUrl} alt={ex.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                   <div className="w-16 h-16 rounded-full bg-primary/90 text-black flex items-center justify-center shadow-[0_0_30px_rgba(0,217,255,0.5)]">
-                     <Play size={28} fill="currentColor" className="ml-1" />
-                   </div>
+        <>
+          <p className="library-count">{filtered.length} exercises</p>
+          <div className="library-grid">
+            {filtered.map(ex => (
+              <div key={ex.id} className="exercise-card" onClick={() => setSelected(ex)}>
+                <div className="exercise-card-image">
+                  <img
+                    src={ex.gifUrl}
+                    alt={ex.name}
+                    loading="lazy"
+                    onError={e => { e.target.style.display='none'; e.target.parentElement.setAttribute('data-empty','true') }}
+                  />
+                </div>
+                <div className="exercise-card-body">
+                  <span className="exercise-tag">{ex.target}</span>
+                  <h3 className="exercise-name">{ex.name}</h3>
+                  <div className="exercise-meta">
+                    <Dumbbell size={12} />
+                    <span>{ex.equipment}</span>
+                    <ChevronRight size={14} className="exercise-arrow" />
+                  </div>
                 </div>
               </div>
-
-              {/* Content */}
-              <div className="flex-1 flex flex-col">
-                <div className="bg-primary/10 self-start px-4 py-1.5 rounded-full border border-primary/20 mb-4">
-                  <span className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">{ex.target}</span>
-                </div>
-                
-                <h3 className="text-2xl font-black text-white capitalize tracking-tighter leading-tight mb-6 group-hover:text-primary transition-colors">
-                  {ex.name}
-                </h3>
-                
-                <div className="mt-auto pt-6 border-t border-white/5 flex items-center gap-3">
-                  <Dumbbell size={14} className="text-muted-foreground/40" />
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{ex.equipment}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
-      {/* Detail View */}
-      {selectedExercise && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl animate-in fade-in duration-300">
-          <div className="bg-[#0A0A0A] border border-white/10 rounded-[4rem] w-full max-w-4xl max-h-[90vh] overflow-y-auto p-12 relative shadow-[0_0_100px_rgba(0,0,0,0.9)]">
-            <button onClick={() => setSelectedExercise(null)} className="absolute top-10 right-10 w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-all text-xl">✕</button>
-            
-            <div className="flex items-center gap-8 mb-12">
-              <div className="w-20 h-20 rounded-[2rem] bg-primary/20 flex items-center justify-center border border-primary/20 shadow-[0_0_30px_rgba(0,217,255,0.2)]">
-                <Info size={40} className="text-primary" />
-              </div>
-              <div>
-                <h2 className="text-4xl font-black text-white tracking-tighter capitalize leading-none mb-3">{selectedExercise.name}</h2>
-                <div className="flex items-center gap-4">
-                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">{selectedExercise.target} Protocol</span>
-                  <span className="text-white/10">/</span>
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Hardware: {selectedExercise.equipment}</span>
-                </div>
-              </div>
+      {/* Detail Modal */}
+      {selected && (
+        <div className="exercise-modal-overlay" onClick={() => setSelected(null)}>
+          <div className="exercise-modal" onClick={e => e.stopPropagation()}>
+            <button className="exercise-modal-close" onClick={() => setSelected(null)}>
+              <X size={20} />
+            </button>
+
+            <div className="exercise-modal-header">
+              <span className="exercise-tag">{selected.target}</span>
+              <h2>{selected.name}</h2>
+              <p className="exercise-modal-meta">
+                <Dumbbell size={14} />
+                {selected.equipment} &nbsp;·&nbsp; {selected.bodyPart}
+              </p>
             </div>
 
-            <div className="aspect-video rounded-[3rem] bg-black mb-16 overflow-hidden border border-white/10 shadow-[inset_0_0_60px_rgba(0,0,0,0.8)]">
-               <img src={selectedExercise.gifUrl} alt={selectedExercise.name} className="w-full h-full object-contain" />
+            <div className="exercise-modal-gif">
+              <img
+                src={selected.gifUrl}
+                alt={selected.name}
+                onError={e => { e.target.style.display='none' }}
+              />
             </div>
 
-            <div className="space-y-12">
-              <div className="flex items-center gap-6">
-                <div className="h-px flex-1 bg-white/5"></div>
-                <h4 className="text-xs font-black text-white uppercase tracking-[0.5em] shrink-0">Execution Logic</h4>
-                <div className="h-px flex-1 bg-white/5"></div>
+            {selected.instructions?.length > 0 && (
+              <div className="exercise-modal-instructions">
+                <h4>Instructions</h4>
+                <ol className="exercise-steps">
+                  {selected.instructions.map((step, i) => (
+                    <li key={i} className="exercise-step">
+                      <span className="exercise-step-num">{i + 1}</span>
+                      <p>{step}</p>
+                    </li>
+                  ))}
+                </ol>
               </div>
-              
-              <div className="grid grid-cols-1 gap-6">
-                {selectedExercise.instructions?.map((step, i) => (
-                  <div key={i} className="flex gap-8 items-start bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem]">
-                    <div className="w-12 h-12 rounded-2xl bg-primary text-black flex items-center justify-center text-lg font-black shrink-0 shadow-[0_0_30px_rgba(0,217,255,0.3)]">
-                      {i + 1}
-                    </div>
-                    <p className="text-xl text-muted-foreground font-medium leading-relaxed pt-1">{step}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       )}
-    </div>
-  );
-};
 
-export default ExerciseLibrary;
+      <style>{`
+        .library-controls {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .library-search {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .library-search-icon {
+          position: absolute;
+          left: 1rem;
+          color: var(--text-tertiary);
+          pointer-events: none;
+        }
+
+        .library-search-input {
+          width: 100%;
+          background: var(--surface);
+          border: 1px solid var(--border-medium);
+          border-radius: 8px;
+          padding: 0.875rem 1rem 0.875rem 2.75rem;
+          color: var(--text-primary);
+          font-size: 0.95rem;
+          transition: border-color 0.2s;
+        }
+
+        .library-search-input:focus {
+          outline: none;
+          border-color: var(--blue-primary);
+          box-shadow: 0 0 0 3px var(--gold-glow);
+        }
+
+        .library-search-input::placeholder {
+          color: var(--text-quaternary);
+        }
+
+        .library-search-clear {
+          position: absolute;
+          right: 1rem;
+          background: none;
+          border: none;
+          color: var(--text-tertiary);
+          cursor: pointer;
+          padding: 0.25rem;
+          display: flex;
+          align-items: center;
+          transition: color 0.2s;
+        }
+
+        .library-search-clear:hover { color: var(--text-primary); }
+
+        .library-filters {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+
+        .library-filter-btn {
+          background: var(--surface);
+          border: 1px solid var(--border-subtle);
+          border-radius: 6px;
+          padding: 0.4rem 0.875rem;
+          color: var(--text-secondary);
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .library-filter-btn:hover {
+          border-color: var(--border-medium);
+          color: var(--text-primary);
+        }
+
+        .library-filter-btn.active {
+          background: var(--blue-primary);
+          border-color: var(--blue-primary);
+          color: var(--background-primary);
+        }
+
+        .library-count {
+          font-size: 0.8rem;
+          color: var(--text-tertiary);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          margin-bottom: 1.25rem;
+        }
+
+        .library-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 1.25rem;
+        }
+
+        .exercise-card {
+          background: var(--surface);
+          border: 1px solid var(--border-subtle);
+          border-radius: 12px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .exercise-card:hover {
+          border-color: var(--blue-primary);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .exercise-card-image[data-empty='true'] {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--border-medium);
+        }
+
+        .exercise-card-image[data-empty='true']::after {
+          content: '🏋️';
+          font-size: 2.5rem;
+          opacity: 0.3;
+        }
+
+        .exercise-card-image {
+          aspect-ratio: 1;
+          background: var(--background-secondary);
+          overflow: hidden;
+        }
+
+        .exercise-card-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+
+        .exercise-card:hover .exercise-card-image img {
+          transform: scale(1.04);
+        }
+
+        .exercise-card-body {
+          padding: 1rem 1.25rem 1.25rem;
+        }
+
+        .exercise-tag {
+          display: inline-block;
+          font-size: 0.7rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: var(--blue-primary);
+          background: rgba(0, 217, 255, 0.08);
+          border: 1px solid rgba(0, 217, 255, 0.2);
+          border-radius: 4px;
+          padding: 0.2rem 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .exercise-name {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          text-transform: capitalize;
+          margin: 0 0 0.75rem;
+          line-height: 1.3;
+        }
+
+        .exercise-meta {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.75rem;
+          color: var(--text-tertiary);
+          text-transform: capitalize;
+        }
+
+        .exercise-arrow {
+          margin-left: auto;
+          color: var(--border-medium);
+          transition: color 0.2s, transform 0.2s;
+        }
+
+        .exercise-card:hover .exercise-arrow {
+          color: var(--blue-primary);
+          transform: translateX(2px);
+        }
+
+        .library-loading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+          padding: 6rem 0;
+          color: var(--text-tertiary);
+          font-size: 0.85rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+        }
+
+        .library-spinner {
+          color: var(--blue-primary);
+          animation: spin 1s linear infinite;
+        }
+
+        .library-error, .library-empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+          padding: 4rem;
+          text-align: center;
+          border: 1px dashed var(--border-subtle);
+          border-radius: 12px;
+          color: var(--text-tertiary);
+        }
+
+        .exercise-modal-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          background: rgba(0, 0, 0, 0.85);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1.5rem;
+          animation: fadeInUp 0.2s ease-out;
+        }
+
+        .exercise-modal {
+          background: var(--surface);
+          border: 1px solid var(--border-medium);
+          border-radius: 16px;
+          width: 100%;
+          max-width: 640px;
+          max-height: 90vh;
+          overflow-y: auto;
+          position: relative;
+          padding: 2rem;
+        }
+
+        .exercise-modal-close {
+          position: absolute;
+          top: 1.25rem;
+          right: 1.25rem;
+          background: var(--background-secondary);
+          border: 1px solid var(--border-subtle);
+          border-radius: 8px;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-secondary);
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .exercise-modal-close:hover {
+          border-color: var(--border-medium);
+          color: var(--text-primary);
+        }
+
+        .exercise-modal-header {
+          margin-bottom: 1.5rem;
+          padding-right: 3rem;
+        }
+
+        .exercise-modal-header h2 {
+          font-size: 1.75rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          text-transform: capitalize;
+          margin: 0.5rem 0 0.5rem;
+          line-height: 1.2;
+        }
+
+        .exercise-modal-meta {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.85rem;
+          color: var(--text-tertiary);
+          text-transform: capitalize;
+          margin: 0;
+        }
+
+        .exercise-modal-gif {
+          background: var(--background-secondary);
+          border: 1px solid var(--border-subtle);
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .exercise-modal-gif img {
+          max-height: 320px;
+          object-fit: contain;
+        }
+
+        .exercise-modal-instructions h4 {
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--text-secondary);
+          margin: 0 0 1rem;
+          padding-bottom: 0.75rem;
+          border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .exercise-steps {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .exercise-step {
+          display: flex;
+          gap: 1rem;
+          align-items: flex-start;
+          background: var(--background-secondary);
+          border: 1px solid var(--border-subtle);
+          border-radius: 8px;
+          padding: 0.875rem 1rem;
+        }
+
+        .exercise-step-num {
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          background: var(--blue-primary);
+          color: var(--background-primary);
+          font-size: 0.8rem;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .exercise-step p {
+          margin: 0;
+          font-size: 0.9rem;
+          color: var(--text-secondary);
+          line-height: 1.6;
+          padding-top: 0.2rem;
+        }
+
+        @media (max-width: 768px) {
+          .library-grid {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+          }
+          .exercise-modal { padding: 1.5rem; }
+          .exercise-modal-header h2 { font-size: 1.4rem; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export default ExerciseLibrary

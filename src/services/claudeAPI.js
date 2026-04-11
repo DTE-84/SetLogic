@@ -1,6 +1,7 @@
 const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 const callClaude = async (system, userContent, max_tokens = 4000) => {
+  console.log('📡 SetLogic: Calling Claude API via proxy...');
   const response = await fetch('http://localhost:3001/api/claude', {
     method: 'POST',
     headers: {
@@ -16,10 +17,12 @@ const callClaude = async (system, userContent, max_tokens = 4000) => {
 
   if (!response.ok) {
     const errorData = await response.json();
+    console.error('❌ SetLogic: Proxy error:', errorData);
     throw new Error(errorData.error || 'API call failed');
   }
 
   const data = await response.json();
+  console.log('✅ SetLogic: API response received.');
   
   // Extract just the text content from Claude's response
   return data.content?.[0]?.text || data;

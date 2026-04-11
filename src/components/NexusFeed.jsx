@@ -3,6 +3,7 @@ import { MessageSquare, Heart, Share2, Sparkles, User, Plus, Loader2 } from "luc
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase";
 import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import "./Generator.css";
 
 const NexusFeed = () => {
   const [posts, setPosts] = useState([]);
@@ -53,7 +54,7 @@ const NexusFeed = () => {
   return (
     <div className="generator-container">
       <div className="generator-header">
-        <Sparkles size={32} className="header-icon" />
+        <Sparkles size={32} className="generator-icon" />
         <div>
           <h2>The Nexus Feed</h2>
           <p className="generator-subtitle">High-fidelity community telemetry and PR tracking.</p>
