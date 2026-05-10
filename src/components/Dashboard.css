@@ -313,7 +313,7 @@
   color: var(--text-primary);
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
-  font-[10px];
+  font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.2em;
