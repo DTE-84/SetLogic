@@ -11,16 +11,21 @@ import {
   saveWearableData,
   saveWorkout
 } from '../services/firestoreService'
+import AudioProtocol from './AudioProtocol'
+import NutritionalMatrix from './NutritionalMatrix'
+import AICoach from './AICoach'
 import './Dashboard.css'
 
 function Dashboard() {
   const { currentUser } = useAuth()
   const firstName = currentUser?.displayName?.split(' ')[0] || 'Athlete'
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   
   const [loading, setLoading] = useState(true)
   const [showSyncModal, setShowSyncModal] = useState(false)
-  const [syncData, setSyncData] = useState({ weight: '', steps: '', sets: '' })
+  const [syncData, setSyncData] = useState({ weight: '', steps: '', sets: '', bodyFat: '', muscleMass: '' })
   const [saving, setSaving] = useState(false)
+  const [todayMeals, setTodayMeals] = useState([])
   
   const [stats, setStats] = useState({
     weightTrend: [],
@@ -30,7 +35,9 @@ function Dashboard() {
       massTrajectory: { value: '0.0', delta: '0.0', trend: 'neutral', label: '0% Delta' },
       powerOutput: { value: '0', trend: 'Stable' },
       stepsToday: { value: '0' },
-      streak: { value: '0' }
+      streak: { value: '0' },
+      bodyFat: { value: '0', trend: 'Stable' },
+      muscleMass: { value: '0', trend: 'Stable' }
     }
   })
 
@@ -52,23 +59,33 @@ function Dashboard() {
       }))
 
       let massTrajectory = { value: '0.0', delta: '0.0', trend: 'neutral', label: '0% Delta' }
+      let bodyFatMetric = { value: '0%', trend: 'Stable' }
+      let muscleMassMetric = { value: '0 kg', trend: 'Stable' }
+
       if (measurements.length >= 2) {
-        const latest = parseFloat(measurements[0].weight)
-        const previous = parseFloat(measurements[1].weight)
-        const delta = (latest - previous).toFixed(1)
-        const deltaPct = ((delta / previous) * 100).toFixed(1)
+        const latest = measurements[0]
+        const previous = measurements[1]
+        
+        const latestWeight = parseFloat(latest.weight)
+        const previousWeight = parseFloat(previous.weight)
+        const delta = (latestWeight - previousWeight).toFixed(1)
+        const deltaPct = ((delta / previousWeight) * 100).toFixed(1)
+        
         massTrajectory = {
-          value: `${latest} kg`,
+          value: `${latestWeight} kg`,
           delta: `${delta > 0 ? '+' : ''}${delta} kg`,
           trend: delta <= 0 ? 'success' : 'warning',
           label: `${deltaPct}% Delta`
         }
-      } else if (measurements.length === 1) {
-        massTrajectory = {
-          value: `${measurements[0].weight} kg`,
-          delta: 'Inaugural',
-          trend: 'success',
-          label: 'Baseline Established'
+
+        if (latest.bodyFat) {
+          const bfDelta = (latest.bodyFat - (previous.bodyFat || latest.bodyFat)).toFixed(1)
+          bodyFatMetric = { value: `${latest.bodyFat}%`, trend: bfDelta <= 0 ? 'Decreasing' : 'Increasing' }
+        }
+        
+        if (latest.muscleMass) {
+          const mmDelta = (latest.muscleMass - (previous.muscleMass || latest.muscleMass)).toFixed(1)
+          muscleMassMetric = { value: `${latest.muscleMass} kg`, trend: mmDelta >= 0 ? 'Gaining' : 'Loss' }
         }
       }
 
@@ -91,8 +108,9 @@ function Dashboard() {
 
       const dateKey = new Date().toISOString().split('T')[0]
       const storedMeals = localStorage.getItem(`meals_${currentUser.uid}_${dateKey}`)
-      const todayMeals = storedMeals ? JSON.parse(storedMeals) : []
-      const todayCalories = todayMeals.reduce((acc, m) => acc + (m.calories * (m.servings || 1)), 0)
+      const meals = storedMeals ? JSON.parse(storedMeals) : []
+      setTodayMeals(meals)
+      const todayCalories = meals.reduce((acc, m) => acc + (m.calories * (m.servings || 1)), 0)
 
       const stepsToday = wearables.find(w => 
         new Date(w.createdAt?.toDate?.() || Date.now()).toISOString().split('T')[0] === dateKey
@@ -106,7 +124,9 @@ function Dashboard() {
           massTrajectory,
           powerOutput: { value: `${totalSets} sets`, trend: totalSets > 50 ? 'High Velocity' : 'Establishing' },
           stepsToday: { value: stepsToday.toLocaleString() },
-          streak: { value: '12 days' }
+          streak: { value: '12 days' },
+          bodyFat: bodyFatMetric,
+          muscleMass: muscleMassMetric
         }
       })
 
@@ -129,8 +149,12 @@ function Dashboard() {
     try {
       const promises = []
       
-      if (syncData.weight) {
-        promises.push(saveBodyMeasurement(currentUser.uid, { weight: parseFloat(syncData.weight) }))
+      if (syncData.weight || syncData.bodyFat || syncData.muscleMass) {
+        promises.push(saveBodyMeasurement(currentUser.uid, { 
+          weight: parseFloat(syncData.weight),
+          bodyFat: parseFloat(syncData.bodyFat),
+          muscleMass: parseFloat(syncData.muscleMass)
+        }))
       }
       
       if (syncData.steps) {
@@ -151,7 +175,7 @@ function Dashboard() {
 
       await Promise.all(promises)
       setShowSyncModal(false)
-      setSyncData({ weight: '', steps: '', sets: '' })
+      setSyncData({ weight: '', steps: '', sets: '', bodyFat: '', muscleMass: '' })
       fetchTelemetry()
     } catch (error) {
       console.error("Telemetry sync failed:", error)
@@ -171,19 +195,108 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header flex justify-between items-start">
-        <div>
-          <h2 className="text-3xl font-black tracking-tighter uppercase">{firstName}'s Telemetry</h2>
-          <p className="dashboard-subtitle text-[10px] font-black uppercase tracking-[0.2em] text-primary">Personalized fitness insights and planning</p>
+      <div className="dashboard-header-nexus flex justify-between items-center mb-10">
+        <div className="flex items-center gap-5">
+          <div className="avatar-ring p-1 rounded-full bg-gradient-to-tr from-primary to-purple-600">
+            <div className="w-16 h-16 rounded-full bg-surface-elevated flex items-center justify-center text-2xl font-black border-4 border-background">
+              {firstName[0]}
+            </div>
+          </div>
+          <div>
+            <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">{firstName}</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mt-2">{today}</p>
+          </div>
         </div>
-        <button 
-          onClick={() => setShowSyncModal(true)}
-          className="sync-log-btn"
-        >
-          <div className="btn-glow" />
-          <Activity size={18} className="relative z-10" />
-          <span className="relative z-10">Add Log</span>
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => setShowSyncModal(true)}
+            className="nexus-btn-primary"
+          >
+            <Plus size={20} />
+            <span>Telemetry</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Live Stats Node */}
+      <div className="live-stats-node p-8 rounded-[32px] bg-surface-elevated border border-white/5 mb-10 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-4">
+           <Zap className="text-primary/20 group-hover:text-primary/40 transition-colors" size={40} />
+        </div>
+        <h3 className="text-xs font-black uppercase tracking-[0.4em] text-muted-foreground mb-6">Real-time Protocol Baseline</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+           <div className="live-metric">
+              <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Cals Today</span>
+              <div className="text-3xl font-black text-white">{stats.calorieIntake[0]?.calories || 0} <span className="text-sm text-muted-foreground">/ {stats.calorieIntake[0]?.target || 2500}</span></div>
+              <div className="w-full h-1 bg-white/5 rounded-full mt-2">
+                 <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(((stats.calorieIntake[0]?.calories || 0) / (stats.calorieIntake[0]?.target || 2500)) * 100, 100)}%` }} />
+              </div>
+           </div>
+           <div className="live-metric">
+              <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Steps</span>
+              <div className="text-3xl font-black text-white">{stats.metrics.stepsToday.value}</div>
+              <div className="w-full h-1 bg-white/5 rounded-full mt-2">
+                 <div className="h-full bg-warning rounded-full" style={{ width: `${Math.min((parseInt(stats.metrics.stepsToday.value.replace(/,/g, '')) / 10000) * 100, 100)}%` }} />
+              </div>
+           </div>
+           <div className="live-metric">
+              <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Body Fat</span>
+              <div className="text-3xl font-black text-white">{stats.metrics.bodyFat.value}</div>
+              <div className="text-[10px] font-bold text-success uppercase mt-1">{stats.metrics.bodyFat.trend}</div>
+           </div>
+           <div className="live-metric">
+              <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Muscle Mass</span>
+              <div className="text-3xl font-black text-white">{stats.metrics.muscleMass.value}</div>
+              <div className="text-[10px] font-bold text-primary uppercase mt-1">{stats.metrics.muscleMass.trend}</div>
+           </div>
+        </div>
+      </div>
+
+      {/* AI Intelligence Layer */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+        <div className="lg:col-span-2">
+           <AICoach />
+        </div>
+        <div>
+           <AudioProtocol onProcessed={(meal) => {
+             const dateKey = new Date().toISOString().split('T')[0]
+             const updated = [meal, ...todayMeals]
+             localStorage.setItem(`meals_${currentUser.uid}_${dateKey}`, JSON.stringify(updated))
+             fetchTelemetry()
+           }} />
+        </div>
+      </div>
+
+      {/* Biometric Analysis Layer */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <NutritionalMatrix meals={todayMeals} />
+        <div className="chart-card !mb-0">
+          <div className="chart-header">
+            <h3>Mass Trajectory</h3>
+            <span className="chart-subtitle">Biometric progression analysis</span>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={stats.weightTrend}>
+              <defs>
+                <linearGradient id="weightArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00d9ff" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#00d9ff" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="week" stroke="#808080" style={{ fontSize: '0.75rem' }} />
+              <YAxis stroke="#808080" domain={['dataMin - 1', 'dataMax + 1']} style={{ fontSize: '0.75rem' }} />
+              <Tooltip 
+                contentStyle={{
+                  background: 'var(--surface-elevated)',
+                  border: '1px solid var(--border-medium)',
+                  borderRadius: '6px',
+                }}
+              />
+              <Area type="monotone" dataKey="weight" stroke="#00d9ff" strokeWidth={3} fill="url(#weightArea)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Unified Telemetry Sync Modal */}
@@ -226,6 +339,26 @@ function Dashboard() {
                     placeholder="e.g. 8500"
                     value={syncData.steps}
                     onChange={e => setSyncData({...syncData, steps: e.target.value})}
+                  />
+                </div>
+                <div className="sync-field">
+                  <label><Target size={14} /> Body Fat %</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="e.g. 15.5"
+                    value={syncData.bodyFat}
+                    onChange={e => setSyncData({...syncData, bodyFat: e.target.value})}
+                  />
+                </div>
+                <div className="sync-field">
+                  <label><Activity size={14} /> Muscle Mass (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="e.g. 65.2"
+                    value={syncData.muscleMass}
+                    onChange={e => setSyncData({...syncData, muscleMass: e.target.value})}
                   />
                 </div>
                 <div className="sync-field sync-field-full">
