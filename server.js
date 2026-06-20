@@ -63,7 +63,7 @@ app.get('/api/exercise-image', async (req, res) => {
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'public, max-age=86400');
     response.body.pipe(res);
-  } catch (error) {
+  } catch {
     res.status(500).send('Image proxy error');
   }
 });

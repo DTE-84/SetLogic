@@ -322,7 +322,7 @@
 }
 
 /* Desktop: Larger screens */
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
 	.header-content {
 		padding: 1.5rem 2rem;
 	}
@@ -357,7 +357,8 @@
 		position: relative;
 		max-width: 1400px;
 		margin: 0 auto;
-		grid-template-columns: repeat(5, 1fr);
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 		gap: 1rem;
 		padding: 1rem;
 		background: var(--surface);
@@ -391,7 +392,7 @@
 }
 
 /* Tablet adjustments */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 	.header-content {
 		padding: 0.875rem 1rem;
 	}
@@ -458,7 +459,7 @@
 	.main-content {
 		padding: 4rem 0.5rem 5.5rem;
 	}
-...
+
 	.bottom-nav {
 		padding: 0.4rem 0.1rem calc(0.4rem + env(safe-area-inset-bottom));
 		overflow-x: auto;

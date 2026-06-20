@@ -1,16 +1,23 @@
-# React + Vite
+# SetLogic
+**Tagline:** The Behavioral Telemetry & AI Coaching Nexus.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Executive Summary
+SetLogic is a high-density behavioral telemetry hub for fitness and nutrition. It bridges wearables data with clinical-grade coaching to accelerate goal achievement through data-driven insight.
 
-Currently, two official plugins are available:
+## Core Architecture
+- **Stack:** React (Vite), Python (FastAPI), Supabase
+- **Tracking:** Wearables Service, Food Vault (Quagga2)
+- **Persona:** Senior Analytical Coach (Nova)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Key Features
+- **Goal Acceleration:** Real-time telemetry on workout volume and nutritional velocity.
+- **Nova Behavioral Chat:** Specialized AI coach focused on 'Correlation vs Causation' logic.
+- **Adaptive Bottom Nav:** High-fidelity mobile UI with horizontal scrolling for 8+ data nodes.
 
-## React Compiler
+## Aesthetic Protocol
+- **Aesthetic:** Lux Forest (Obsidian / Kinetic Green)
+- **UI Logic:** Medical-grade nutrition therapy and periodized strength programming.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**DTE Solutions LLC // Senior Systems Engineering**

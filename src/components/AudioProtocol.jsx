@@ -18,7 +18,7 @@ const AudioProtocol = ({ onProcessed }) => {
     }, 3000);
   };
 
-  const processTranscript = (text) => {
+  const processTranscript = () => {
     setProcessing(true);
     
     // Simulate AI extraction
@@ -37,6 +37,8 @@ const AudioProtocol = ({ onProcessed }) => {
       if (onProcessed) onProcessed(extracted);
     }, 2000);
   };
+
+  const barHeights = [15.2, 28.1, 12.5, 23.9, 18.4];
 
   return (
     <div className="audio-protocol-node p-8 rounded-[32px] bg-surface-elevated border border-white/5 relative overflow-hidden group">
@@ -58,8 +60,8 @@ const AudioProtocol = ({ onProcessed }) => {
         {isListening ? (
           <div className="h-24 flex flex-col items-center justify-center text-center">
              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="w-1 bg-primary rounded-full animate-bounce" style={{ height: `${Math.random() * 20 + 10}px`, animationDelay: `${i * 0.1}s` }} />
+                {barHeights.map((height, i) => (
+                  <div key={i} className="w-1 bg-primary rounded-full animate-bounce" style={{ height: `${height}px`, animationDelay: `${i * 0.1}s` }} />
                 ))}
              </div>
              <p className="text-[10px] font-black uppercase text-primary animate-pulse">Capturing Audio Feed...</p>
