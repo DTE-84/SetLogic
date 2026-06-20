@@ -14,10 +14,16 @@
   
   /* Kinetic Green (DTE Standard) */
   --kinetic-green: #00d9ff;
+  --primary: #00d9ff;
   --kinetic-light: #4dffff;
   --kinetic-dark: #00a8cc;
   --kinetic-glow: rgba(0, 217, 255, 0.15);
   --kinetic-shimmer: rgba(77, 255, 184, 0.3);
+  
+  /* Additional Blue Accents */
+  --blue-dark: #00a8cc;
+  --blue-glow: rgba(0, 217, 255, 0.15);
+  --blue-light: #4dffff;
   
   /* High-Contrast Accents */
   --accent-gold: #d4af37;

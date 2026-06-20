@@ -196,19 +196,7 @@
   color: var(--blue-light);
 }
 
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 2rem;
-}
 
-.chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  padding: 2rem;
-  transition: all 0.3s ease;
-}
 
 .chart-card.full {
   grid-column: 1 / -1;

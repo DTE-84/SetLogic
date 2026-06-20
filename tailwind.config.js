@@ -7,15 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: 'var(--background-primary)',
-        surface: 'var(--surface)',
-        'surface-elevated': 'var(--surface-elevated)',
-        primary: 'var(--kinetic-green)',
-        warning: 'var(--warning)',
-        success: 'var(--success)',
-        muted: {
-          foreground: 'var(--text-tertiary)'
-        }
+        primary: '#00d9ff',
+        'surface-elevated': '#222222',
+        success: '#00ff9d',
+        warning: '#d4af37',
+        'muted-foreground': '#6c757d',
       }
     },
   },
