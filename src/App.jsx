@@ -14,7 +14,7 @@ import {
 import { useAuth } from "./contexts/AuthContext";
 import Dashboard from "./components/Dashboard";
 import Chat from "./components/Chat";
-import WorkoutGenerator from "./components/WorkoutGenerator";
+import Workout from "./components/Workout";
 import MealGenerator from "./components/MealGenerator";
 import Wearables from "./components/Wearables";
 import Login from "./components/Login";
@@ -55,7 +55,7 @@ function App() {
 			case "food":
 				return <FoodLogger />;
 			case "workout":
-				return <WorkoutGenerator />;
+				return <Workout />;
 			case "library":
 				return <ExerciseLibrary />;
 			case "nexus":

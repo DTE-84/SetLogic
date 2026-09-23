@@ -1,16 +1,17 @@
 import { db } from '../firebase';
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  collection, 
-  addDoc, 
-  query, 
-  where, 
-  orderBy, 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  deleteDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
   limit,
   getDocs,
-  serverTimestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 
 // User Profile
@@ -42,6 +43,11 @@ export const getWorkouts = async (userId, limitCount = 30) => {
   const q = query(workoutsRef, orderBy('createdAt', 'desc'), limit(limitCount));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+export const deleteWorkout = async (userId, workoutId) => {
+  const workoutRef = doc(db, 'users', userId, 'workouts', workoutId);
+  await deleteDoc(workoutRef);
 };
 
 // Meals
