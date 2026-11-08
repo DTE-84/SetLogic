@@ -115,14 +115,14 @@ function App() {
 								SetLogic
 							</h1>
 							<span className='text-10px font-black uppercase tracking-wide text-primary'>
-								AI Analytical Coach
+								AI Fitness & Nutrition Coach
 							</span>
 						</div>
 					</div>
 					<div className='header-user'>
 						<div className='user-greeting hidden sm:flex'>
 							<span className='greeting-text text-[10px] uppercase font-bold text-muted-foreground'>
-								Uplink Established:
+								Signed in as:
 							</span>
 							<span className='user-name text-xs font-black uppercase tracking-tight ml-2'>
 								{currentUser?.displayName || "Athlete"}
@@ -170,19 +170,19 @@ function App() {
 						className={`nav-item ${activeView === "workout" ? "active" : ""}`}
 						onClick={() => setActiveView("workout")}>
 						<Dumbbell size={20} />
-						<span>Execute</span>
+						<span>Workout</span>
 					</button>
 					<button
 						className={`nav-item ${activeView === "nexus" ? "active" : ""}`}
 						onClick={() => setActiveView("nexus")}>
 						<Sparkles size={20} />
-						<span>Nexus</span>
+						<span>Feed</span>
 					</button>
 					<button
 						className={`nav-item ${activeView === "chat" ? "active" : ""}`}
 						onClick={() => setActiveView("chat")}>
 						<MessageSquare size={20} />
-						<span>Nova</span>
+						<span>Coach</span>
 					</button>
 					<button
 						className={`nav-item ${activeView === "wearables" ? "active" : ""}`}

@@ -75,12 +75,12 @@ function Chat() {
 
     try {
       const dashboardContext = telemetry ? `
-    SYSTEM TELEMETRY CONTEXT:
+    USER CONTEXT:
     - Weight: ${telemetry.weight} lbs
     - Daily Macros: P${Math.round(telemetry.macros.p)}g / C${Math.round(telemetry.macros.c)}g / F${Math.round(telemetry.macros.f)}g (${Math.round(telemetry.macros.cal)} kcal)
-    - Step Velocity: ${telemetry.steps} steps
-    - Behavioral Adherence: ${telemetry.adherence}%
-    ` : "TELEMETRY: No recent data synced."
+    - Steps today: ${telemetry.steps}
+    - Consistency: ${telemetry.adherence}%
+    ` : "No recent data synced."
 
       console.log("NOVA UPLINK INITIATED:", { userMessage, telemetryAvailable: !!telemetry });
       const response = await chatWithCoach(conversationHistory, userMessage, dashboardContext)
@@ -93,9 +93,9 @@ function Chat() {
         stack: error.stack,
         cause: error.cause
       });
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: `Sorry, I encountered an error [${error.message}]. Please check your console for detailed telemetry diagnostics.` 
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Sorry, I ran into an error: ${error.message}. Please try again in a moment.`
       }])
     } finally {      setIsLoading(false)
     }

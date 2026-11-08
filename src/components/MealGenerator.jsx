@@ -103,7 +103,7 @@ function MealGenerator() {
       setPlan(result);
     } catch (error) {
       console.error("Error generating meal plan:", error);
-      setPlan("Telemetry Link Failure: Claude uplink failed. Verify API configuration.");
+      setPlan("Couldn't generate your plan. Please check your connection and try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -406,7 +406,7 @@ function MealGenerator() {
             <div className='section-header' onClick={() => toggleSection("micros")}>
               <div className='section-title'>
                 <Zap size={20} className='section-icon' />
-                <h3>Micronutrient Intelligence</h3>
+                <h3>Micronutrients</h3>
               </div>
               {expandedSections.micros ? <ChevronDown size={20} className='section-chevron' /> : <ChevronRight size={20} className='section-chevron' />}
             </div>
@@ -486,7 +486,7 @@ function MealGenerator() {
 						{isGenerating ? (
 							<>
 								<Loader size={20} className='spinner' />
-								Generating Protocol...
+								Generating Plan...
 							</>
 						) : (
 							<>
@@ -501,7 +501,7 @@ function MealGenerator() {
 					<div className='generator-result' ref={resultRef}>
 						<div className='result-header'>
 							<CheckCircle size={24} className='success-icon' />
-							<h3>Your Personalized Nutrition Protocol</h3>
+							<h3>Your Personalized Meal Plan</h3>
 						</div>
 						<div className='result-content markdown-view'>
 							{plan.split("\n").map((line, index) => {

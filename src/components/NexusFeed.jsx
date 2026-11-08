@@ -56,8 +56,8 @@ const NexusFeed = () => {
       <div className="generator-header">
         <Sparkles color="#00d9ff" size={32} className="generator-icon" />
         <div>
-          <h2>The Nexus Feed</h2>
-          <p className="generator-subtitle">High-fidelity community telemetry and PR tracking.</p>
+          <h2>Community Feed</h2>
+          <p className="generator-subtitle">Share wins, PRs, and progress with the community.</p>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ const NexusFeed = () => {
                 className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-30"
               >
                 {posting ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
-                Broadcast Update
+                Post Update
               </button>
             </div>
           </div>
@@ -128,7 +128,7 @@ const NexusFeed = () => {
                 </button>
                 <button className="flex items-center gap-2 text-[10px] font-black text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">
                   <Share2 size={14} />
-                  Relay
+                  Share
                 </button>
               </div>
             </div>
@@ -137,7 +137,7 @@ const NexusFeed = () => {
           {posts.length === 0 && (
             <div className="p-20 text-center bg-white/[0.01] rounded-[3rem] border border-dashed border-white/10">
                <Sparkles size={40} className="text-primary/20 mx-auto mb-4" />
-               <p className="text-muted-foreground font-medium">The Nexus is currently silent. Be the first to broadcast.</p>
+               <p className="text-muted-foreground font-medium">No posts yet. Be the first to share something.</p>
             </div>
           )}
         </div>

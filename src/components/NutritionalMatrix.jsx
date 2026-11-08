@@ -44,12 +44,12 @@ const NutritionalMatrix = ({ meals = [] }) => {
     <div className="nutritional-matrix-card p-8 rounded-2xl bg-surface-elevated border border-white/5 flex flex-col h-full">
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h3 className="text-lg font-black tracking-tighter uppercase">Nutritional Scoring Matrix</h3>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Advanced Biometric Feed Analysis</p>
+          <h3 className="text-lg font-black tracking-tighter uppercase">Nutrition Quality Score</h3>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Based on what you've logged</p>
         </div>
         <div className="intelligence-badge flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 shadow-[0_0_15px_rgba(0,217,255,0.05)]">
           <Brain size={16} className="text-primary" />
-          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Intelligence Score: {matrix.score}</span>
+          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Quality Score: {matrix.score}</span>
         </div>
       </div>
 
@@ -98,7 +98,7 @@ const NutritionalMatrix = ({ meals = [] }) => {
       <div className="mt-8 pt-6 border-t border-white/5 flex items-start gap-3">
         <Info size={16} className="text-muted-foreground shrink-0 mt-0.5" />
         <p className="text-[10px] font-medium text-muted-foreground italic leading-relaxed">
-          Nova AI analyzes your vault history to aggregate micro-density and glycemic load into a unified quality score.
+          Nova looks at your recent food log to estimate nutrient density and sugar intake.
         </p>
       </div>
     </div>

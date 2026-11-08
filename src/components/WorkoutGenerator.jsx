@@ -138,7 +138,7 @@ function WorkoutGenerator() {
           <div className="generator-result">
             <div className="result-header">
               <CheckCircle size={24} className="success-icon" />
-              <h3>Your Personalized Training Protocol</h3>
+              <h3>Your Personalized Workout Plan</h3>
             </div>
             <div className="result-content markdown-view">
               {plan.split('\n').map((line, index) => {

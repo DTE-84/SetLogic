@@ -154,7 +154,7 @@ const FoodLogger = () => {
           <ScanBarcode color="#00d9ff" size={32} className="header-icon" />
           <div>
             <h2>Nutrition Tracker</h2>
-            <p className="logger-subtitle">Community-powered food database. High-fidelity macro intelligence.</p>
+            <p className="logger-subtitle">Community-powered food database with accurate macro tracking.</p>
           </div>
         </div>
         <div className="header-actions">

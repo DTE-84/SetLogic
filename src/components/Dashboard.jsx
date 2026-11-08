@@ -119,7 +119,7 @@ function Dashboard() {
         calorieIntake: [{ day: 'Today', calories: todayCalories, target: profile?.dailyCalorieTarget || 2500 }],
         metrics: {
           massTrajectory,
-          powerOutput: { value: `${totalSets} sets`, trend: totalSets > 50 ? 'High Velocity' : 'Establishing' },
+          powerOutput: { value: `${totalSets} sets`, trend: totalSets > 50 ? 'High Volume' : 'Building' },
           stepsToday: { value: stepsToday.toLocaleString() },
           streak: { value: '12 days' },
           bodyFat: bodyFatMetric,
@@ -185,7 +185,7 @@ function Dashboard() {
     return (
       <div className="dashboard-loading">
         <Loader2 size={32} className="dashboard-spinner" />
-        <span>Synchronizing Telemetry...</span>
+        <span>Loading your data...</span>
       </div>
     )
   }
@@ -194,7 +194,7 @@ function Dashboard() {
     <div className="dashboard">
       <div className="dashboard-header">
         <div>
-          <h2>{firstName}'s Telemetry</h2>
+          <h2>{firstName}'s Overview</h2>
           <p className="dashboard-subtitle">Personalized fitness insights and planning</p>
         </div>
         <button onClick={() => setShowSyncModal(true)} className="sync-log-btn">
@@ -211,7 +211,7 @@ function Dashboard() {
             <TrendingDown size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Mass Trajectory</span>
+            <span className="stat-label">Weight Trend</span>
             <div className="stat-value">{stats.metrics.massTrajectory.value}</div>
             <span className={`stat-trend ${stats.metrics.massTrajectory.trend}`}>
               {stats.metrics.massTrajectory.delta} | {stats.metrics.massTrajectory.label}
@@ -224,7 +224,7 @@ function Dashboard() {
             <Dumbbell size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Power Output</span>
+            <span className="stat-label">Training Volume</span>
             <div className="stat-value">{stats.metrics.powerOutput.value}</div>
             <span className="stat-trend primary">{stats.metrics.powerOutput.trend}</span>
           </div>
@@ -246,21 +246,21 @@ function Dashboard() {
             <Target size={24} />
           </div>
           <div className="stat-content">
-            <span className="stat-label">Protocol Streak</span>
+            <span className="stat-label">Day Streak</span>
             <div className="stat-value">{stats.metrics.streak.value}</div>
             <span className="stat-trend success">On track</span>
           </div>
         </div>
       </div>
 
-      {/* AI Intelligence Layer */}
+      {/* AI Insights */}
 
       {/* Biometric Analysis Layer */}
       <div className="charts-grid" style={{marginBottom: '2rem'}}>
         <div className="chart-card full">
           <div className="chart-header">
-            <h3>Mass Trajectory</h3>
-            <span className="chart-subtitle">Biometric progression analysis</span>
+            <h3>Weight Trend</h3>
+            <span className="chart-subtitle">Your weight over the last 7 days</span>
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={stats.weightTrend}>
@@ -303,7 +303,7 @@ function Dashboard() {
               </div>
               <div>
                 <h3>Log Today's Data</h3>
-                <p>Update your daily biometric telemetry</p>
+                <p>Update today's stats</p>
               </div>
             </div>
 
@@ -367,7 +367,7 @@ function Dashboard() {
                 {saving ? (
                   <><Loader2 size={18} className="spinner" /> Saving...</>
                 ) : (
-                  <><Activity size={18} /> Commit Telemetry</>
+                  <><Activity size={18} /> Save Entry</>
                 )}
               </button>
             </form>
