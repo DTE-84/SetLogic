@@ -129,12 +129,22 @@ function MealGenerator() {
 			<div className='generator-header'>
 				<Utensils color="#00d9ff" size={32} className='generator-icon' />
 				<div>
-					<h2>Medical-Grade Nutrition Planning</h2>
+					<h2>Personalized Nutrition Planning</h2>
 					<p className='generator-subtitle'>
-						Comprehensive meal planning with medical contraindication checking
-						and micronutrient optimization
+						Comprehensive meal planning that takes your health context into account
+						and optimizes for your micronutrient needs
 					</p>
 				</div>
+			</div>
+
+			<div className='disclaimer-banner'>
+				<AlertTriangle size={16} className='disclaimer-icon' />
+				<p>
+					This is general nutrition guidance, not medical advice. If you have a
+					medical condition, take medications, or are pregnant/breastfeeding,
+					review any plan with your doctor or a registered dietitian before
+					following it.
+				</p>
 			</div>
 
 			<div className='generator-content'>
@@ -225,7 +235,7 @@ function MealGenerator() {
 											<option value='muscle_gain'>Muscle Gain</option>
 											<option value='performance'>Athletic Performance</option>
 											<option value='health'>Health / Longevity</option>
-											<option value='disease_management'>Disease Management</option>
+											<option value='disease_management'>Supporting a Health Condition</option>
 										</select>
 									</div>
 									<div className='form-group'>
@@ -601,6 +611,27 @@ function MealGenerator() {
           font-size: 0.8rem;
           margin-top: 0.25rem;
           font-style: italic;
+        }
+        .disclaimer-banner {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          background: rgba(255, 107, 53, 0.08);
+          border: 1px solid rgba(255, 107, 53, 0.3);
+          border-radius: 10px;
+          padding: 0.85rem 1rem;
+          margin: 0 0 1.5rem;
+        }
+        .disclaimer-icon {
+          color: #ff6b35;
+          flex-shrink: 0;
+          margin-top: 0.1rem;
+        }
+        .disclaimer-banner p {
+          margin: 0;
+          font-size: 0.85rem;
+          line-height: 1.4;
+          color: var(--text-secondary, #b0b0b0);
         }
       `}</style>
 		</div>
