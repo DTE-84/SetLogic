@@ -1,37 +1,37 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
 
-    // Helper function to check if the user is the owner of the record
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // User profiles: Users can read/write their own profile
-   match /users/{userId}/{document=**} {
-  allow read, write: if request.auth != null && request.auth.uid == userId;
-}
-      
-      // Nested collections under user
-      match /{allSubcollections=**} {
+    // User documents and everything nested under them (workouts, meals,
+    // measurements, plans, wearable data, chat, pantry/favorites/saved meals):
+    // only the owning user may read or write.
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /{subcollection=**} {
         allow read, write: if isOwner(userId);
       }
     }
 
-    // Community Feed: Authenticated users can read all, write their own
+    // Community feed: any signed-in user can read; only the author can write
+    // or modify their own post.
     match /nexus_feed/{postId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
-    // Food Vault: Global read, write requires auth
-    match /food_vault/{foodId} {
+    // Universal food vault: readable by anyone (even signed-out barcode
+    // lookups), writable only by signed-in users.
+    match /universal_food_vault/{foodId} {
       allow read: if true;
       allow write: if isAuthenticated();
     }

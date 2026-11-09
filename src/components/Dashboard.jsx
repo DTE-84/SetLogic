@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { TrendingDown, Dumbbell, Target, Footprints, Loader2, X, Activity, Zap } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useAuth } from '../contexts/AuthContext'
-import { 
-  getBodyMeasurements, 
-  getWorkouts, 
-  getWearableData, 
+import {
+  getBodyMeasurements,
+  getWorkouts,
+  getWearableData,
   getUserProfile,
+  getMeals,
   saveBodyMeasurement,
   saveWearableData,
   saveWorkout
@@ -16,8 +17,7 @@ import './Dashboard.css'
 function Dashboard() {
   const { currentUser } = useAuth()
   const firstName = currentUser?.displayName?.split(' ')[0] || 'Athlete'
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
-  
+
   const [loading, setLoading] = useState(true)
   const [showSyncModal, setShowSyncModal] = useState(false)
   const [syncData, setSyncData] = useState({ weight: '', steps: '', sets: '', bodyFat: '', muscleMass: '' })
@@ -42,11 +42,12 @@ function Dashboard() {
     if (!currentUser) return
     setLoading(true)
     try {
-      const [measurements, workouts, wearables, profile] = await Promise.all([
+      const [measurements, workouts, wearables, profile, meals] = await Promise.all([
         getBodyMeasurements(currentUser.uid, 7),
         getWorkouts(currentUser.uid, 7),
         getWearableData(currentUser.uid, 7),
-        getUserProfile(currentUser.uid)
+        getUserProfile(currentUser.uid),
+        getMeals(currentUser.uid, 100)
       ])
 
       const weightTrend = [...measurements].reverse().map(m => ({
@@ -104,10 +105,9 @@ function Dashboard() {
       const totalSets = workouts.reduce((acc, w) => acc + (w.sets || 0), 0)
 
       const dateKey = new Date().toISOString().split('T')[0]
-      const storedMeals = localStorage.getItem(`meals_${currentUser.uid}_${dateKey}`)
-      const meals = storedMeals ? JSON.parse(storedMeals) : []
-      setTodayMeals(meals)
-      const todayCalories = meals.reduce((acc, m) => acc + (m.calories * (m.servings || 1)), 0)
+      const todaysMeals = meals.filter(m => m.date === dateKey)
+      setTodayMeals(todaysMeals)
+      const todayCalories = todaysMeals.reduce((acc, m) => acc + (m.calories * (m.servings || 1)), 0)
 
       const stepsToday = wearables.find(w => 
         new Date(w.createdAt?.toDate?.() || Date.now()).toISOString().split('T')[0] === dateKey

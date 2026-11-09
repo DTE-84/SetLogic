@@ -17,7 +17,10 @@ import {
   getSavedMeals,
   deleteSavedMeal
 } from '../services/foodVault';
+import { saveMeal, getMeals, updateMeal, deleteMeal } from '../services/firestoreService';
 import './FoodLogger.css';
+
+const todayKey = () => new Date().toISOString().split('T')[0];
 
 const FoodLogger = () => {
   const { currentUser } = useAuth();
@@ -66,11 +69,10 @@ const FoodLogger = () => {
     setSavedMeals(meals);
   }, [currentUser]);
 
-  const loadTodaysMeals = useCallback(() => {
-    // Load from localStorage for now (will integrate with backend later)
-    const today = new Date().toISOString().split('T')[0];
-    const stored = localStorage.getItem(`meals_${currentUser.uid}_${today}`);
-    setTodaysMeals(stored ? JSON.parse(stored) : []);
+  const loadTodaysMeals = useCallback(async () => {
+    // Pull recent logged meals from Firestore and keep only today's
+    const recent = await getMeals(currentUser.uid, 100);
+    setTodaysMeals(recent.filter(m => m.date === todayKey()));
   }, [currentUser]);
 
   useEffect(() => {
@@ -83,10 +85,24 @@ const FoodLogger = () => {
     }
   }, [currentUser, loadUserPantry, loadFavorites, loadRecentFoods, loadSavedMeals, loadTodaysMeals]);
 
-  const saveTodaysMeals = (meals) => {
-    const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem(`meals_${currentUser.uid}_${today}`, JSON.stringify(meals));
-    setTodaysMeals(meals);
+  // Logs a single food to today's Firestore-backed meal log
+  const logFoodEntry = async (food, servings = 1) => {
+    const barcode = food.barcode || food.id;
+    const mealData = {
+      name: food.name,
+      brand: food.brand || '',
+      barcode,
+      calories: food.calories || 0,
+      protein: food.protein || 0,
+      carbs: food.carbs || 0,
+      fat: food.fat || 0,
+      servings,
+      date: todayKey()
+    };
+    const docRef = await saveMeal(currentUser.uid, mealData);
+    setTodaysMeals(prev => [{ id: docRef.id, ...mealData }, ...prev]);
+    recordRecentFood(currentUser.uid, barcode).then(loadRecentFoods);
+    return docRef.id;
   };
 
   const handleScan = async (barcode) => {
@@ -105,15 +121,7 @@ const FoodLogger = () => {
       await addToUserPantry(currentUser.uid, barcode);
 
       // Log to today's meals
-      const newMeal = {
-        id: Date.now(),
-        ...food,
-        servings: 1,
-        timestamp: new Date().toISOString()
-      };
-
-      saveTodaysMeals([...todaysMeals, newMeal]);
-      recordRecentFood(currentUser.uid, barcode).then(loadRecentFoods);
+      await logFoodEntry(food);
 
       // Reload pantry
       await loadUserPantry();
@@ -133,16 +141,7 @@ const FoodLogger = () => {
       const customId = await createCustomFood(currentUser.uid, foodData);
 
       // Log to today's meals
-      const newMeal = {
-        id: Date.now(),
-        ...foodData,
-        barcode: customId,
-        servings: 1,
-        timestamp: new Date().toISOString()
-      };
-
-      saveTodaysMeals([...todaysMeals, newMeal]);
-      recordRecentFood(currentUser.uid, customId).then(loadRecentFoods);
+      await logFoodEntry({ ...foodData, barcode: customId });
 
       // Reload pantry
       await loadUserPantry();
@@ -157,22 +156,13 @@ const FoodLogger = () => {
   };
 
   const handleQuickLog = (food) => {
-    const barcode = food.barcode || food.id;
-    const newMeal = {
-      id: Date.now(),
-      ...food,
-      barcode,
-      servings: 1,
-      timestamp: new Date().toISOString()
-    };
-    saveTodaysMeals([...todaysMeals, newMeal]);
-    recordRecentFood(currentUser.uid, barcode).then(loadRecentFoods);
+    logFoodEntry(food);
   };
 
   const handleLogFromSearch = async (food) => {
     const barcode = food.barcode || food.id;
     await addToUserPantry(currentUser.uid, barcode);
-    handleQuickLog(food);
+    await logFoodEntry(food);
     await loadUserPantry();
   };
 
@@ -184,19 +174,20 @@ const FoodLogger = () => {
     await loadFavorites();
   };
 
-  const removeMeal = (mealId) => {
-    saveTodaysMeals(todaysMeals.filter(m => m.id !== mealId));
+  const removeMeal = async (mealId) => {
+    setTodaysMeals(prev => prev.filter(m => m.id !== mealId));
     setSelectedMealIds(prev => {
       const next = new Set(prev);
       next.delete(mealId);
       return next;
     });
+    await deleteMeal(currentUser.uid, mealId);
   };
 
-  const updateServings = (mealId, servings) => {
-    saveTodaysMeals(
-      todaysMeals.map(m => m.id === mealId ? { ...m, servings: parseFloat(servings) } : m)
-    );
+  const updateServings = async (mealId, servings) => {
+    const parsed = parseFloat(servings);
+    setTodaysMeals(prev => prev.map(m => m.id === mealId ? { ...m, servings: parsed } : m));
+    await updateMeal(currentUser.uid, mealId, { servings: parsed });
   };
 
   const toggleMealSelection = (mealId) => {
@@ -236,15 +227,25 @@ const FoodLogger = () => {
     cancelMealSelection();
   };
 
-  const logSavedMeal = (meal) => {
-    const timestamp = new Date().toISOString();
-    const newEntries = meal.items.map((item, index) => ({
-      id: Date.now() + index,
-      ...item,
-      timestamp
-    }));
-    saveTodaysMeals([...todaysMeals, ...newEntries]);
-    meal.items.forEach(item => recordRecentFood(currentUser.uid, item.barcode));
+  const logSavedMeal = async (meal) => {
+    const date = todayKey();
+    const newEntries = [];
+    for (const item of meal.items) {
+      const mealData = {
+        name: item.name,
+        barcode: item.barcode,
+        calories: item.calories || 0,
+        protein: item.protein || 0,
+        carbs: item.carbs || 0,
+        fat: item.fat || 0,
+        servings: item.servings || 1,
+        date
+      };
+      const docRef = await saveMeal(currentUser.uid, mealData);
+      newEntries.push({ id: docRef.id, ...mealData });
+      recordRecentFood(currentUser.uid, item.barcode);
+    }
+    setTodaysMeals(prev => [...newEntries, ...prev]);
     setTimeout(loadRecentFoods, 500);
   };
 

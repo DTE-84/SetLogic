@@ -66,6 +66,16 @@ export const getMeals = async (userId, limitCount = 30) => {
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
+export const updateMeal = async (userId, mealId, data) => {
+  const mealRef = doc(db, 'users', userId, 'meals', mealId);
+  await setDoc(mealRef, data, { merge: true });
+};
+
+export const deleteMeal = async (userId, mealId) => {
+  const mealRef = doc(db, 'users', userId, 'meals', mealId);
+  await deleteDoc(mealRef);
+};
+
 // Body Measurements
 export const saveBodyMeasurement = async (userId, measurementData) => {
   const measurementsRef = collection(db, 'users', userId, 'measurements');
