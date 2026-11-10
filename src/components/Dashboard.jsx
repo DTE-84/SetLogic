@@ -7,11 +7,11 @@ import {
   getWorkouts,
   getWearableData,
   getUserProfile,
-  getMeals,
+  getMealsForDate,
   saveBodyMeasurement,
   saveWearableData,
   saveWorkout
-} from '../services/firestoreService'
+} from '../services/trackingService'
 import './Dashboard.css'
 
 function Dashboard() {
@@ -22,7 +22,6 @@ function Dashboard() {
   const [showSyncModal, setShowSyncModal] = useState(false)
   const [syncData, setSyncData] = useState({ weight: '', steps: '', sets: '', bodyFat: '', muscleMass: '' })
   const [saving, setSaving] = useState(false)
-  const [todayMeals, setTodayMeals] = useState([])
   
   const [stats, setStats] = useState({
     weightTrend: [],
@@ -42,16 +41,17 @@ function Dashboard() {
     if (!currentUser) return
     setLoading(true)
     try {
-      const [measurements, workouts, wearables, profile, meals] = await Promise.all([
+      const dateKey = new Date().toISOString().split('T')[0]
+      const [measurements, workouts, wearables, profile, todaysMeals] = await Promise.all([
         getBodyMeasurements(currentUser.uid, 7),
         getWorkouts(currentUser.uid, 7),
         getWearableData(currentUser.uid, 7),
         getUserProfile(currentUser.uid),
-        getMeals(currentUser.uid, 100)
+        getMealsForDate(currentUser.uid, dateKey)
       ])
 
       const weightTrend = [...measurements].reverse().map(m => ({
-        week: new Date(m.createdAt?.toDate?.() || Date.now()).toLocaleDateString([], { weekday: 'short' }),
+        week: new Date(m.createdAt || Date.now()).toLocaleDateString([], { weekday: 'short' }),
         weight: parseFloat(m.weight),
         goal: profile?.goalWeight || 180 
       }))
@@ -95,7 +95,7 @@ function Dashboard() {
       })
 
       workouts.forEach(w => {
-        const wDate = new Date(w.createdAt?.toDate?.() || Date.now()).toISOString().split('T')[0]
+        const wDate = new Date(w.createdAt || Date.now()).toISOString().split('T')[0]
         const dayIdx = last7Days.findIndex(d => d.date === wDate)
         if (dayIdx !== -1) {
           last7Days[dayIdx].sets += (w.sets || 0)
@@ -104,13 +104,10 @@ function Dashboard() {
 
       const totalSets = workouts.reduce((acc, w) => acc + (w.sets || 0), 0)
 
-      const dateKey = new Date().toISOString().split('T')[0]
-      const todaysMeals = meals.filter(m => m.date === dateKey)
-      setTodayMeals(todaysMeals)
       const todayCalories = todaysMeals.reduce((acc, m) => acc + (m.calories * (m.servings || 1)), 0)
 
       const stepsToday = wearables.find(w => 
-        new Date(w.createdAt?.toDate?.() || Date.now()).toISOString().split('T')[0] === dateKey
+        new Date(w.createdAt || Date.now()).toISOString().split('T')[0] === dateKey
       )?.data?.steps || 0
 
       setStats({

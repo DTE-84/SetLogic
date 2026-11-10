@@ -1,63 +1,37 @@
-import { useState } from "react";
-import {
-	Dumbbell,
-	MessageSquare,
-	Utensils,
-	LineChart,
-	LogOut,
-	Footprints,
-} from "lucide-react";
-import { useAuth } from "./contexts/AuthContext";
-import Dashboard from "./components/Dashboard";
-import Chat from "./components/Chat";
-import Workout from "./components/Workout";
-import Nutrition from "./components/Nutrition";
-import Lifestyle from "./components/Lifestyle";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import "./App.css";
+import { Dumbbell, MessageSquare, Utensils, LineChart, LogOut, Footprints } from 'lucide-react'
+import { useAuth } from './contexts/AuthContext'
+import { AppRoutes } from './AppRoutes'
+import Dashboard from './components/Dashboard'
+import Chat from './components/Chat'
+import Workout from './components/Workout'
+import Nutrition from './components/Nutrition'
+import Lifestyle from './components/Lifestyle'
+import './App.css'
 
-function App() {
-	const [activeView, setActiveView] = useState("dashboard");
-	const [showLogin, setShowLogin] = useState(true);
-	const { currentUser, logout } = useAuth();
+const navigation = [
+  { path: '/dashboard', label: 'Dashboard', Icon: LineChart, View: Dashboard },
+  { path: '/nutrition', label: 'Nutrition', Icon: Utensils, View: Nutrition },
+  { path: '/training', label: 'Training', Icon: Dumbbell, View: Workout },
+  { path: '/lifestyle', label: 'Lifestyle', Icon: Footprints, View: Lifestyle },
+  { path: '/coach', label: 'Coach', Icon: MessageSquare, View: Chat }
+]
+const routes = navigation.map(item => item.path)
 
-	const handleLogout = async () => {
-		try {
-			await logout();
-		} catch (error) {
-			console.error("Failed to log out:", error);
-		}
-	};
+function SignedInApp({ path }) {
+  const { currentUser, logout } = useAuth()
+  const { View } = navigation.find(item => item.path === path)
 
-	if (!currentUser) {
-		return showLogin ? (
-			<Login onToggle={() => setShowLogin(false)} />
-		) : (
-			<Signup onToggle={() => setShowLogin(true)} />
-		);
-	}
+  async function handleLogout() {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Failed to log out:', error)
+    }
+  }
 
-	const renderView = () => {
-		switch (activeView) {
-			case "dashboard":
-				return <Dashboard />;
-			case "nutrition":
-				return <Nutrition />;
-			case "workout":
-				return <Workout />;
-			case "lifestyle":
-				return <Lifestyle />;
-			case "chat":
-				return <Chat />;
-			default:
-				return <Dashboard />;
-		}
-	};
-
-	return (
-		<div className='app'>
-			<header className='header'>
+  return (
+    <div className="app">
+      <header className='header'>
 				<div className='header-content'>
 					<div className='logo'>
 						<div
@@ -121,45 +95,25 @@ function App() {
 					</div>
 				</div>
 			</header>
-
-			<div className='app-layout'>
-				<main className='main-content'>{renderView()}</main>
-
-				<nav className='bottom-nav'>
-					<button
-						className={`nav-item ${activeView === "dashboard" ? "active" : ""}`}
-						onClick={() => setActiveView("dashboard")}>
-						<LineChart size={20} />
-						<span>Dashboard</span>
-					</button>
-					<button
-						className={`nav-item ${activeView === "nutrition" ? "active" : ""}`}
-						onClick={() => setActiveView("nutrition")}>
-						<Utensils size={20} />
-						<span>Nutrition</span>
-					</button>
-					<button
-						className={`nav-item ${activeView === "workout" ? "active" : ""}`}
-						onClick={() => setActiveView("workout")}>
-						<Dumbbell size={20} />
-						<span>Training</span>
-					</button>
-					<button
-						className={`nav-item ${activeView === "lifestyle" ? "active" : ""}`}
-						onClick={() => setActiveView("lifestyle")}>
-						<Footprints size={20} />
-						<span>Lifestyle</span>
-					</button>
-					<button
-						className={`nav-item ${activeView === "chat" ? "active" : ""}`}
-						onClick={() => setActiveView("chat")}>
-						<MessageSquare size={20} />
-						<span>Coach</span>
-					</button>
-				</nav>
-			</div>
-		</div>
-	);
+      <div className="app-layout">
+        <main className="main-content"><View /></main>
+        <nav className="bottom-nav" aria-label="Main navigation">
+          {navigation.map(item => {
+            const { path: target, label, Icon } = item
+            return (
+              <a key={target} href={`#${target}`} className={`nav-item ${target === path ? 'active' : ''}`}
+                aria-current={target === path ? 'page' : undefined} style={{ textDecoration: 'none' }}>
+                <Icon size={20} aria-hidden="true" />
+                <span>{label}</span>
+              </a>
+            )
+          })}
+        </nav>
+      </div>
+    </div>
+  )
 }
 
-export default App;
+export default function App() {
+  return <AppRoutes routes={routes} renderProtected={(path, userId) => <SignedInApp key={userId} path={path} />} />
+}

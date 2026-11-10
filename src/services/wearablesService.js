@@ -1,7 +1,7 @@
 // Wearables Integration Service
 // Supports: Apple Health, Google Fit, Fitbit
 
-import { saveWearableData } from './firestoreService';
+import { saveWearableData } from './trackingService';
 
 // Apple HealthKit Integration (iOS Safari)
 export const connectAppleHealth = async () => {

@@ -17,7 +17,7 @@ import {
   getSavedMeals,
   deleteSavedMeal
 } from '../services/foodVault';
-import { saveMeal, getMeals, updateMeal, deleteMeal } from '../services/firestoreService';
+import { saveMeal, saveMeals, getMealsForDate, updateMeal, deleteMeal } from '../services/trackingService';
 import './FoodLogger.css';
 
 const todayKey = () => new Date().toISOString().split('T')[0];
@@ -70,22 +70,17 @@ const FoodLogger = () => {
   }, [currentUser]);
 
   const loadTodaysMeals = useCallback(async () => {
-    // Pull recent logged meals from Firestore and keep only today's
-    const recent = await getMeals(currentUser.uid, 100);
-    setTodaysMeals(recent.filter(m => m.date === todayKey()));
+    setTodaysMeals(await getMealsForDate(currentUser.uid, todayKey()));
   }, [currentUser]);
 
   useEffect(() => {
     if (currentUser) {
-      loadUserPantry();
-      loadFavorites();
-      loadRecentFoods();
-      loadSavedMeals();
-      loadTodaysMeals();
+      Promise.all([loadUserPantry(), loadFavorites(), loadRecentFoods(), loadSavedMeals(), loadTodaysMeals()])
+        .catch(error => console.error('Could not load food data:', error));
     }
   }, [currentUser, loadUserPantry, loadFavorites, loadRecentFoods, loadSavedMeals, loadTodaysMeals]);
 
-  // Logs a single food to today's Firestore-backed meal log
+  // Logs a single food to today's meal log
   const logFoodEntry = async (food, servings = 1) => {
     const barcode = food.barcode || food.id;
     const mealData = {
@@ -99,10 +94,10 @@ const FoodLogger = () => {
       servings,
       date: todayKey()
     };
-    const docRef = await saveMeal(currentUser.uid, mealData);
-    setTodaysMeals(prev => [{ id: docRef.id, ...mealData }, ...prev]);
-    recordRecentFood(currentUser.uid, barcode).then(loadRecentFoods);
-    return docRef.id;
+    const entry = await saveMeal(currentUser.uid, mealData);
+    setTodaysMeals(prev => [entry, ...prev]);
+    recordRecentFood(currentUser.uid, barcode).then(loadRecentFoods).catch(console.error);
+    return entry.id;
   };
 
   const handleScan = async (barcode) => {
@@ -156,7 +151,7 @@ const FoodLogger = () => {
   };
 
   const handleQuickLog = (food) => {
-    logFoodEntry(food);
+    logFoodEntry(food).catch(() => alert('Could not log this food. Try again.'));
   };
 
   const handleLogFromSearch = async (food) => {
@@ -175,19 +170,20 @@ const FoodLogger = () => {
   };
 
   const removeMeal = async (mealId) => {
+    await deleteMeal(currentUser.uid, mealId);
     setTodaysMeals(prev => prev.filter(m => m.id !== mealId));
     setSelectedMealIds(prev => {
       const next = new Set(prev);
       next.delete(mealId);
       return next;
     });
-    await deleteMeal(currentUser.uid, mealId);
   };
 
   const updateServings = async (mealId, servings) => {
     const parsed = parseFloat(servings);
-    setTodaysMeals(prev => prev.map(m => m.id === mealId ? { ...m, servings: parsed } : m));
+    if (!Number.isFinite(parsed) || parsed <= 0) return;
     await updateMeal(currentUser.uid, mealId, { servings: parsed });
+    setTodaysMeals(prev => prev.map(m => m.id === mealId ? { ...m, servings: parsed } : m));
   };
 
   const toggleMealSelection = (mealId) => {
@@ -229,9 +225,8 @@ const FoodLogger = () => {
 
   const logSavedMeal = async (meal) => {
     const date = todayKey();
-    const newEntries = [];
-    for (const item of meal.items) {
-      const mealData = {
+    if (!meal.items.length) return;
+    const entries = meal.items.map(item => ({
         name: item.name,
         barcode: item.barcode,
         calories: item.calories || 0,
@@ -240,13 +235,16 @@ const FoodLogger = () => {
         fat: item.fat || 0,
         servings: item.servings || 1,
         date
-      };
-      const docRef = await saveMeal(currentUser.uid, mealData);
-      newEntries.push({ id: docRef.id, ...mealData });
-      recordRecentFood(currentUser.uid, item.barcode);
+    }));
+    try {
+      const saved = await saveMeals(currentUser.uid, entries);
+      setTodaysMeals(prev => [...saved, ...prev]);
+    } catch {
+      alert('Could not log this meal. Try again.');
+      return;
     }
-    setTodaysMeals(prev => [...newEntries, ...prev]);
-    setTimeout(loadRecentFoods, 500);
+    Promise.all(entries.map(item => recordRecentFood(currentUser.uid, item.barcode)))
+      .then(loadRecentFoods).catch(console.error);
   };
 
   const handleDeleteSavedMeal = async (mealId) => {
@@ -365,8 +363,18 @@ const FoodLogger = () => {
                       type="number"
                       min="0.25"
                       step="0.25"
-                      value={meal.servings}
-                      onChange={(e) => updateServings(meal.id, e.target.value)}
+                      defaultValue={meal.servings}
+                      onBlur={(e) => {
+                        const input = e.currentTarget;
+                        const servings = input.valueAsNumber;
+                        if (!Number.isFinite(servings) || servings <= 0) input.value = meal.servings;
+                        else if (servings !== meal.servings) {
+                          updateServings(meal.id, servings).catch(() => {
+                            input.value = meal.servings;
+                            alert('Could not update servings. Try again.');
+                          });
+                        }
+                      }}
                       className="servings-input"
                     />
                     <span className="servings-label">servings</span>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Dumbbell, Plus, Trash2, Save, Loader2, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { saveWorkout, getWorkouts, deleteWorkout } from '../services/firestoreService'
+import { saveWorkout, getWorkouts, deleteWorkout } from '../services/trackingService'
 import './WorkoutLogger.css'
 
 let uid = 0
@@ -147,7 +147,7 @@ function WorkoutLogger() {
   }
 
   const formatDate = (workout) => {
-    const d = workout.createdAt?.toDate?.() || (workout.date ? new Date(workout.date) : new Date())
+    const d = new Date(workout.createdAt || workout.date || Date.now())
     return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   }
 

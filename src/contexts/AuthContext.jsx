@@ -1,87 +1,68 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect } from 'react'
-import { 
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  sendEmailVerification,
-  GoogleAuthProvider,
-  signInWithPopup,
-  OAuthProvider,
-  updateProfile
-} from 'firebase/auth'
-import { auth } from '../firebase'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { supabase, unwrap } from '../supabase'
 
 const AuthContext = createContext()
+export const useAuth = () => useContext(AuthContext)
 
-export const useAuth = () => {
-  return useContext(AuthContext)
+const redirectUrl = () => new URL(window.location.pathname, window.location.origin)
+const recoveryUrl = () => {
+  const url = redirectUrl()
+  url.searchParams.set('auth', 'recovery')
+  return url.href
 }
 
-export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+const signup = async (email, password, displayName) => unwrap(await supabase.auth.signUp({
+  email, password,
+  options: { data: { display_name: displayName }, emailRedirectTo: redirectUrl().href }
+}))
+const login = async (email, password) => unwrap(await supabase.auth.signInWithPassword({ email, password }))
+const logout = async () => unwrap(await supabase.auth.signOut({ scope: 'local' }))
+const resetPassword = async email => unwrap(await supabase.auth.resetPasswordForEmail(email, { redirectTo: recoveryUrl() }))
+const updatePassword = async password => unwrap(await supabase.auth.updateUser({ password }))
+const signInWithProvider = async provider => unwrap(await supabase.auth.signInWithOAuth({
+  provider, options: { redirectTo: redirectUrl().href }
+}))
 
-  const signup = async (email, password, displayName) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-    // Update profile with display name
-    await updateProfile(userCredential.user, { displayName })
-    // Send verification email
-    await sendEmailVerification(userCredential.user)
-    return userCredential
-  }
-
-  const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password)
-  }
-
-  const logout = () => {
-    return signOut(auth)
-  }
-
-  const resetPassword = (email) => {
-    return sendPasswordResetEmail(auth, email)
-  }
-
-  const sendVerificationEmail = () => {
-    return sendEmailVerification(currentUser)
-  }
-
-  const signInWithGoogle = () => {
-    const provider = new GoogleAuthProvider()
-    return signInWithPopup(auth, provider)
-  }
-
-  const signInWithApple = () => {
-    const provider = new OAuthProvider('apple.com')
-    return signInWithPopup(auth, provider)
-  }
+export function AuthProvider({ children }) {
+  const [session, setSession] = useState(null)
+  const [loading, setLoading] = useState(Boolean(supabase))
+  const [recovering, setRecovering] = useState(() => new URLSearchParams(location.search).get('auth') === 'recovery')
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user)
+    if (!supabase) return
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      setSession(nextSession)
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
       setLoading(false)
     })
-
-    return unsubscribe
+    return () => subscription.unsubscribe()
   }, [])
 
-  const value = {
-    currentUser,
-    signup,
-    login,
-    logout,
-    resetPassword,
-    sendVerificationEmail,
-    signInWithGoogle,
-    signInWithApple
+  const user = session?.user
+  const currentUser = user ? {
+    uid: user.id,
+    displayName: user.user_metadata?.display_name || user.user_metadata?.full_name,
+    photoURL: user.user_metadata?.avatar_url
+  } : null
+
+  const finishRecovery = () => {
+    const url = new URL(location.href)
+    url.searchParams.delete('auth')
+    history.replaceState(null, '', url)
+    setRecovering(false)
   }
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{
+      currentUser, loading, recovering, finishRecovery, configured: Boolean(supabase),
+      signup, login, logout, resetPassword, updatePassword,
+      signInWithGoogle: () => signInWithProvider('google'),
+      signInWithApple: () => signInWithProvider('apple'),
+      googleEnabled: import.meta.env.VITE_SUPABASE_GOOGLE === 'true',
+      appleEnabled: import.meta.env.VITE_SUPABASE_APPLE === 'true'
+    }}>
+      {children}
     </AuthContext.Provider>
   )
 }

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageSquare, Heart, Share2, Sparkles, User, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { db } from "../firebase";
-import { collection, query, orderBy, limit, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { supabase, unwrap } from "../supabase";
 import "./Generator.css";
 
 const NexusFeed = () => {
@@ -10,42 +9,47 @@ const NexusFeed = () => {
   const [loading, setLoading] = useState(true);
   const [newPost, setNewPost] = useState("");
   const [posting, setPosting] = useState(false);
+  const [error, setError] = useState("");
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    const q = query(
-      collection(db, "nexus_feed"),
-      orderBy("createdAt", "desc"),
-      limit(20)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setPosts(postsData);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    let active = true;
+    async function refresh() {
+      try {
+        const rows = unwrap(await supabase.from("community_posts").select()
+          .order("created_at", { ascending: false }).limit(20));
+        if (active) setPosts(rows);
+      } catch {
+        if (active) setError("Could not load community posts.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    refresh();
+    const channel = supabase.channel("community-posts")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "community_posts" }, refresh)
+      .subscribe(status => { if (status === "SUBSCRIBED") refresh(); });
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handlePost = async () => {
-    if (!newPost.trim()) return;
+    if (!currentUser || !newPost.trim()) return;
     setPosting(true);
+    setError("");
     try {
-      await addDoc(collection(db, "nexus_feed"), {
-        content: newPost,
-        userName: currentUser?.displayName || "Athlete",
-        userPhoto: currentUser?.photoURL || "",
-        createdAt: serverTimestamp(),
-        likes: 0,
-        type: "update"
-      });
+      const post = unwrap(await supabase.from("community_posts").insert({
+        content: newPost.trim(),
+        user_name: currentUser.displayName || "Athlete",
+        user_photo: currentUser.photoURL || ""
+      }).select().single());
+      setPosts(previous => [post, ...previous.filter(item => item.id !== post.id)].slice(0, 20));
       setNewPost("");
     } catch (err) {
       console.error("Error posting to Nexus:", err);
+      setError("Could not publish your post. Try again.");
     } finally {
       setPosting(false);
     }
@@ -60,6 +64,7 @@ const NexusFeed = () => {
           <p className="generator-subtitle">Share wins, PRs, and progress with the community.</p>
         </div>
       </div>
+      {error && <p role="alert">{error}</p>}
 
       <div className="bg-[#0A0907] border border-white/5 rounded-[2.5rem] p-6 mb-8 shadow-xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -77,6 +82,7 @@ const NexusFeed = () => {
             <textarea
               placeholder="Post a win, a PR, or a strategy shift..."
               value={newPost}
+	              maxLength={2000}
               onChange={(e) => setNewPost(e.target.value)}
               className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-4 min-h-[100px] focus:outline-none focus:border-primary/20 transition-all text-sm font-medium text-white placeholder:text-muted-foreground/30 resize-none"
             />
@@ -105,17 +111,17 @@ const NexusFeed = () => {
               <div className="flex justify-between items-start mb-4">
                 <div className="flex gap-4 items-center">
                   <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/20 overflow-hidden">
-                    {post.userPhoto ? <img src={post.userPhoto} alt="" /> : <User size={20} className="text-primary" />}
+                    {post.user_photo ? <img src={post.user_photo} alt="" /> : <User size={20} className="text-primary" />}
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-sm tracking-tight">{post.userName}</h4>
+                    <h4 className="font-bold text-white text-sm tracking-tight">{post.user_name}</h4>
                     <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
-                      {post.createdAt?.toDate ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'Just now'}
+                      {new Date(post.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
                 <div className="bg-primary/5 px-3 py-1 rounded-full border border-primary/10 text-[9px] font-black text-primary uppercase tracking-widest">
-                  {post.type}
+                  Update
                 </div>
               </div>
               <p className="text-sm text-muted-foreground font-medium leading-relaxed mb-6 border-l-2 border-primary/20 pl-4">

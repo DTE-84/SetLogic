@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, Sparkles, Loader } from 'lucide-react'
 import { chatWithCoach, conversationHistory } from '../services/claudeAPI'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, getBodyMeasurements, getWearableData } from '../services/firestoreService'
+import { getUserProfile, getBodyMeasurements, getWearableData, getMealsForDate } from '../services/trackingService'
 import './Chat.css'
 
 function Chat() {
@@ -23,16 +23,14 @@ function Chat() {
   const fetchTelemetry = useCallback(async () => {
     if (!currentUser) return
     try {
-      const [profile, measurements, wearables] = await Promise.all([
+      const today = new Date().toISOString().split('T')[0]
+      const [profile, measurements, wearables, meals] = await Promise.all([
         getUserProfile(currentUser.uid),
         getBodyMeasurements(currentUser.uid, 5),
-        getWearableData(currentUser.uid, 1)
+        getWearableData(currentUser.uid, 1),
+        getMealsForDate(currentUser.uid, today)
       ])
 
-      // Get today's food from localStorage (to match FoodLogger for now)
-      const today = new Date().toISOString().split('T')[0]
-      const storedMeals = localStorage.getItem(`meals_${currentUser.uid}_${today}`)
-      const meals = storedMeals ? JSON.parse(storedMeals) : []
       const macros = meals.reduce((acc, m) => ({
         p: acc.p + (m.protein * (m.servings || 1)),
         c: acc.c + (m.carbs * (m.servings || 1)),
