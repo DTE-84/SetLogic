@@ -12,7 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@ericblade/quagga2": "^1.12.1",
+    "@ericblade/quagga2": "^1.14.0",
     "@supabase/server": "^1.9.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.0",
